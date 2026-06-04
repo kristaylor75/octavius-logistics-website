@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Octavius — Style Guide / Typography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styleguide.css" />
+</head>
+<body>
+  <span class="page-reg pr-tl"></span><span class="page-reg pr-tr"></span>
+  <span class="page-reg pr-bl"></span><span class="page-reg pr-br"></span>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">OCTAVIUS · <b>STYLE GUIDE</b></a>
+      <ul>
+        <li><a class="link" href="index.html">Overview</a></li>
+        <li><a class="link" href="color.html">Color</a></li>
+        <li><a class="link" href="typography.html" aria-current="page">Type</a></li>
+        <li><a class="link" href="primitives.html">Primitives</a></li>
+        <li><a class="link" href="motion.html">Motion</a></li>
+        <li><a class="link" href="examples.html">Examples</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="masthead datum-grid">
+    <div class="wrap">
+      <div class="margin-strip">
+        <span class="mono">§ 02 / TYPE</span>
+        <span class="mono mono-ghost">DM SANS + JETBRAINS MONO</span>
+        <span class="mono">SCALE ~1.25</span>
+      </div>
+      <div class="title-block">
+        <div class="eyebrow" style="color:var(--cortex)">TYPOGRAPHY</div>
+        <h1 class="ts-6xl" style="margin:0 0 1.25rem">Two families, strict roles</h1>
+        <p class="lead ts-xl">
+          DM Sans carries display, headings, UI, and body. JetBrains Mono carries
+          everything that reads as an instrument reading — data, labels,
+          coordinates, annotations, figure numbers.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- Families -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 02.1 / FAMILIES</span>
+        <h2 class="section-title">The pairing</h2>
+      </div>
+      <div class="grid-2">
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.25rem">DISPLAY / UI / BODY</div>
+          <div style="font-size:3.5rem; line-height:1.05; font-weight:600; letter-spacing:var(--tracking-tight)">DM Sans</div>
+          <div style="font-size:1.5rem; margin-top:0.5rem">AaBbCcGg 0123456789</div>
+          <div class="ts-sm" style="color:var(--ink-muted); margin-top:1rem">Weights in use: 400 Regular · 500 Medium · 600 Semibold</div>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.25rem">DATA / LABELS / COORDINATES</div>
+          <div style="font-family:var(--font-mono); font-size:3.5rem; line-height:1.05; font-weight:500">JetBrains</div>
+          <div style="font-family:var(--font-mono); font-size:1.5rem; margin-top:0.5rem">AaBbCcGg 0123456789</div>
+          <div class="ts-sm" style="color:var(--ink-muted); margin-top:1rem">Weights in use: 400 Regular · 500 Medium</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Scale -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 02.2 / SCALE</span>
+        <h2 class="section-title">Type scale</h2>
+      </div>
+      <div id="scale"></div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Mono labels -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 02.3 / INSTRUMENT LABELS</span>
+        <h2 class="section-title">Monospace label treatment</h2>
+      </div>
+      <p class="lead" style="margin-bottom:2rem">Uppercase, letter-spacing 0.08–0.12em, usually <span class="mono mono-xs" style="color:var(--ink)">ink-faint</span>. This is the texture used in margins and on annotations.</p>
+      <div class="grid-2">
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1rem">COORDINATE ANNOTATION</div>
+          <div class="mono" style="font-size:0.875rem; color:var(--odyssey)">N 41.8781° · W 087.6298°</div>
+          <div class="mono mono-ghost" style="margin-top:6px">FIG. 02 / DEMAND·SURFACE</div>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1rem">MICRO-LABEL SET</div>
+          <div class="mono" style="font-size:0.75rem; color:var(--ink); line-height:2">OCT·001 &nbsp; § 02.3 &nbsp; SCALE 1:1 &nbsp; Δ COST &nbsp; v.2026 &nbsp; LAT 0.000</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Specimen -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 02.4 / SPECIMEN</span>
+        <h2 class="section-title">In paragraph</h2>
+      </div>
+      <div style="max-width:60ch">
+        <h3 class="ts-3xl" style="margin:0 0 1rem">Each product is an instrument</h3>
+        <p class="ts-xl" style="color:var(--ink-muted); margin:0 0 1.5rem">An instrument does not generate the world; it reveals something already there with precision and trust.</p>
+        <p class="ts-base" style="color:var(--ink-muted)">Body copy in DM Sans at 16/1.6. Octavius builds the instruments that make logistics legible — cost mechanics, network states, demand signals, inventory lifecycle, decision logic. We show the mechanism rather than claim magic; trust is the product. <span class="mono mono-xs" style="color:var(--ink-faint)">[ FIG. 04 ]</span></p>
+      </div>
+    </section>
+  </div>
+
+  <footer class="page-footer wrap">
+    <div class="margin-strip footer-strip">
+      <span class="mono mono-ghost">§ 02 / TYPE</span>
+      <span class="mono mono-ghost">OCT·001</span>
+    </div>
+  </footer>
+
+  <script>
+    const SCALE = [
+      ['7XL','72 / 1.02','display','Hero display','ts-7xl','Legible'],
+      ['6XL','56 / 1.05','display','Page title','ts-6xl','See the structure'],
+      ['5XL','44 / 1.08','display','Section title','ts-5xl','Make the hidden readable'],
+      ['4XL','36 / 1.12','display','Subsection','ts-4xl','Instruments for the invisible'],
+      ['3XL','28 / 1.20','display','Card heading','ts-3xl','Each product is an instrument'],
+      ['2XL','22 / 1.30','display','Lead','ts-2xl','Network state, rendered as contour'],
+      ['XL','18 / 1.50','display','Body large','ts-xl','Cost mechanics made legible at a glance.'],
+      ['BASE','16 / 1.60','display','Body','ts-base','Standard body copy in DM Sans for sustained reading.'],
+      ['SM','14 / 1.50','either','Small / UI','ts-sm','Secondary UI text and captions.'],
+    ];
+    document.getElementById('scale').innerHTML = SCALE.map(([tok,size,fam,use,cls,sample]) => `
+      <div class="type-row" style="display:grid; grid-template-columns:120px 1fr; gap:2rem; align-items:baseline; padding:0.85rem 0; border-bottom:var(--rule-width) solid var(--rule)">
+        <div class="mono" style="font-size:0.625rem; color:var(--ink-faint); line-height:1.6">
+          ${tok}<br/><span class="mono-ghost">${size}</span><br/><span class="mono-ghost">${fam.toUpperCase()}</span><br/><span class="mono-ghost">${use}</span>
+        </div>
+        <div class="${cls}">${sample}</div>
+      </div>`).join('') + `
+      <div class="type-row" style="display:grid; grid-template-columns:120px 1fr; gap:2rem; align-items:baseline; padding:0.85rem 0">
+        <div class="mono" style="font-size:0.625rem; color:var(--ink-faint); line-height:1.6">XS · 2XS<br/><span class="mono-ghost">12 · 11</span><br/><span class="mono-ghost">MONO</span><br/><span class="mono-ghost">Labels</span></div>
+        <div class="mono" style="font-size:0.75rem">N 41°·W 087° · FIG 02 / COST·SURFACE · LAT 0.000 LON 0.000 · Δ COST · SCALE 1:1</div>
+      </div>`;
+  </script>
+</body>
+</html>

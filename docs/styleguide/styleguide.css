@@ -1,0 +1,226 @@
+/* ============================================================
+   OCTAVIUS — STYLEGUIDE SHARED STYLESHEET
+   Single source of truth for the preview docs. Mirrors
+   ../../design-tokens.md and ../../CLAUDE.md. When those change,
+   update this file (and the pages that consume it).
+
+   PRODUCTION STACK (CLAUDE.md §5):
+     Next.js (App Router) + TypeScript + Tailwind. Server Components
+     by default; 'use client' only for the hero + five demos.
+     Statically generated. Framer Motion (useScroll/useTransform)
+     for scroll choreography; demos lazy-loaded via next/dynamic.
+   These standalone HTML docs are a non-production visual reference.
+   ============================================================ */
+
+:root {
+  /* ---- Surfaces ---- */
+  --bg:        oklch(16% 0.015 255);
+  --surface-1: oklch(19% 0.018 255);
+  --surface-2: oklch(23% 0.020 255);
+  --surface-3: oklch(28% 0.022 255);
+
+  /* ---- Ink ---- */
+  --ink:       oklch(96% 0.010 255);
+  --ink-muted: oklch(78% 0.012 255);
+  --ink-faint: oklch(62% 0.012 255);
+  --ink-ghost: oklch(46% 0.010 255);
+
+  /* ---- Lines ---- */
+  --rule:        oklch(34% 0.012 255);
+  --rule-strong: oklch(44% 0.014 255);
+  --grid:        oklch(26% 0.010 255 / 0.6);
+
+  /* ---- Signature hues (base / vivid / subtle) ---- */
+  --cortex:     oklch(72% 0.16 275);
+  --reflex:     oklch(72% 0.16 340);
+  --imagine:    oklch(72% 0.16 75);
+  --odyssey:    oklch(72% 0.16 215);
+  --traderoute: oklch(72% 0.16 150);
+  --cortex-vivid:     oklch(68% 0.20 275);
+  --reflex-vivid:     oklch(68% 0.20 340);
+  --imagine-vivid:    oklch(68% 0.20 75);
+  --odyssey-vivid:    oklch(68% 0.20 215);
+  --traderoute-vivid: oklch(68% 0.20 150);
+  --cortex-subtle:     oklch(30% 0.05 275);
+  --reflex-subtle:     oklch(30% 0.05 340);
+  --imagine-subtle:    oklch(30% 0.05 75);
+  --odyssey-subtle:    oklch(30% 0.05 215);
+  --traderoute-subtle: oklch(30% 0.05 150);
+
+  /* ---- Type ---- */
+  --font-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+  --tracking-label: 0.1em;
+  --tracking-tight: -0.01em;
+
+  /* ---- Spacing (8px base) ---- */
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+  --space-6: 1.5rem;  --space-8: 2rem;   --space-12: 3rem;   --space-16: 4rem;
+  --space-24: 6rem;   --space-32: 8rem;
+
+  /* ---- Grid & hairline (0.5px; see design-tokens.md §5) ---- */
+  --rule-width: 0.5px;
+  --grid-cell:  8px;
+  --content-max: 76rem;
+
+  /* ---- Radii ---- */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* ---- Motion ---- */
+  --ease-instrument: cubic-bezier(0.2, 0.0, 0.0, 1.0);
+  --ease-plot:       cubic-bezier(0.4, 0.0, 0.2, 1.0);
+  --dur-fast:   150ms;
+  --dur-base:   300ms;
+  --dur-draw:   600ms;
+  --dur-settle: 900ms;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* faint coordinate lattice — the chart datum */
+.datum-grid {
+  background-image:
+    linear-gradient(to right,  var(--grid) var(--rule-width), transparent var(--rule-width)),
+    linear-gradient(to bottom, var(--grid) var(--rule-width), transparent var(--rule-width));
+  background-size: var(--grid-cell) var(--grid-cell);
+}
+
+.wrap { max-width: var(--content-max); margin: 0 auto; padding: 0 2rem; }
+a { color: inherit; }
+
+/* ---- Mono micro-label / coordinate annotation ---- */
+.mono {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  font-size: 0.6875rem;
+  color: var(--ink-faint);
+  line-height: 1.3;
+}
+.mono-xs { font-size: 0.75rem; }
+.mono-ghost { color: var(--ink-ghost); }
+
+/* ---- Hairlines (0.5px; box-shadow inset so width tracks the token) ---- */
+.rule { border: 0; height: var(--rule-width); background: var(--rule); margin: 0; }
+.hairframe { box-shadow: inset 0 0 0 var(--rule-width) var(--rule); }
+
+/* ---- Registration mark ---- */
+.regmark { width: 16px; height: 16px; position: relative; color: var(--ink-ghost); display: inline-block; }
+.regmark::before, .regmark::after { content: ""; position: absolute; background: currentColor; }
+.regmark::before { left: 50%; top: 0; width: var(--rule-width); height: 100%; transform: translateX(-50%); }
+.regmark::after  { top: 50%; left: 0; height: var(--rule-width); width: 100%; transform: translateY(-50%); }
+
+/* fixed page-corner registration marks */
+.page-reg { position: fixed; width: 18px; height: 18px; color: var(--ink-ghost); z-index: 60; pointer-events: none; }
+.page-reg::before, .page-reg::after { content:""; position:absolute; background: currentColor; }
+.page-reg::before { left:50%; top:0; width:var(--rule-width); height:100%; transform: translateX(-50%); }
+.page-reg::after  { top:50%; left:0; height:var(--rule-width); width:100%; transform: translateY(-50%); }
+.pr-tl{ top:14px; left:14px } .pr-tr{ top:14px; right:14px }
+.pr-bl{ bottom:14px; left:14px } .pr-br{ bottom:14px; right:14px }
+
+/* ============================================================
+   NAVIGATION (shared across pages)
+   ============================================================ */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: oklch(16% 0.015 255 / 0.82); backdrop-filter: blur(10px);
+  border-bottom: var(--rule-width) solid var(--rule);
+}
+.nav-inner { display: flex; align-items: center; gap: 2rem; height: 56px; max-width: var(--content-max); margin: 0 auto; padding: 0 2rem; }
+.nav .brand { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.nav .brand b { color: var(--cortex); font-weight: 500; }
+.nav ul { display: flex; gap: 1.25rem; list-style: none; margin: 0; padding: 0; overflow-x: auto; }
+.nav a.link { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-faint); text-decoration: none; padding: 4px 0; border-bottom: 1px solid transparent; white-space: nowrap; transition: color var(--dur-fast) var(--ease-instrument); }
+.nav a.link:hover { color: var(--ink); }
+.nav a.link[aria-current="page"] { color: var(--ink); border-bottom-color: var(--cortex); }
+
+/* ============================================================
+   PAGE MASTHEAD
+   ============================================================ */
+.masthead { border-bottom: var(--rule-width) solid var(--rule); }
+.margin-strip { display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem 0; border-bottom: var(--rule-width) solid var(--rule); flex-wrap: wrap; }
+.footer-strip { border-bottom: 0; border-top: var(--rule-width) solid var(--rule); }
+.masthead .title-block { padding: 4rem 0 3rem; max-width: 64ch; }
+.eyebrow { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: var(--tracking-label); font-size: 0.6875rem; margin-bottom: 1.25rem; }
+
+/* ============================================================
+   SECTIONS & TYPE SCALE
+   ============================================================ */
+section { padding: 5rem 0; position: relative; }
+.section-head { display: flex; align-items: baseline; gap: 1.5rem; margin-bottom: 2.5rem; flex-wrap: wrap; }
+.section-head .fig { white-space: nowrap; }
+h2.section-title { font-size: 2.25rem; line-height: 1.1; font-weight: 600; letter-spacing: var(--tracking-tight); margin: 0; }
+h3.sub-title { font-size: 1.375rem; font-weight: 600; margin: 0 0 1rem; }
+.lead { font-size: 1.125rem; color: var(--ink-muted); max-width: 62ch; }
+
+.ts-7xl { font-size: 4.5rem; line-height: 1.02; font-weight: 600; letter-spacing: var(--tracking-tight); }
+.ts-6xl { font-size: 3.5rem; line-height: 1.05; font-weight: 600; letter-spacing: var(--tracking-tight); }
+.ts-5xl { font-size: 2.75rem; line-height: 1.08; font-weight: 600; }
+.ts-4xl { font-size: 2.25rem; line-height: 1.12; font-weight: 600; }
+.ts-3xl { font-size: 1.75rem; line-height: 1.2; font-weight: 600; }
+.ts-2xl { font-size: 1.375rem; line-height: 1.3; }
+.ts-xl  { font-size: 1.125rem; line-height: 1.5; }
+.ts-base{ font-size: 1rem; line-height: 1.6; }
+.ts-sm  { font-size: 0.875rem; line-height: 1.5; }
+
+/* ============================================================
+   SWATCHES & PALETTE
+   ============================================================ */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: var(--rule-width); background: var(--rule); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); }
+.swatch { background: var(--surface-1); padding: 1rem; }
+.swatch .chip { height: 60px; border-radius: var(--radius-sm); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); margin-bottom: 0.75rem; }
+.swatch .name { font-family: var(--font-display); font-weight: 500; font-size: 0.875rem; }
+.swatch .val  { font-family: var(--font-mono); font-size: 0.625rem; color: var(--ink-faint); margin-top: 3px; word-break: break-all; }
+
+/* tonal ramp (data-driven by JS) */
+.ramp { display: grid; grid-template-columns: 120px 1fr; gap: 1.5rem; align-items: center; margin-bottom: 1.5rem; }
+.ramp .ramp-label { }
+.ramp .ramp-label .nm { font-weight: 600; font-size: 1rem; }
+.ramp .ramp-label .role { color: var(--ink-muted); font-size: 0.8125rem; }
+.ramp .steps { display: grid; grid-template-columns: repeat(9, 1fr); gap: var(--rule-width); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); }
+.ramp .step { height: 72px; display: flex; flex-direction: column; justify-content: flex-end; padding: 6px; }
+.ramp .step .l { font-family: var(--font-mono); font-size: 0.5625rem; letter-spacing: 0.04em; }
+@media (max-width: 720px) { .ramp { grid-template-columns: 1fr; gap: 0.75rem; } .ramp .steps { grid-template-columns: repeat(9, 1fr); } }
+
+/* ============================================================
+   GENERIC CARDS / GRIDS
+   ============================================================ */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--rule-width); background: var(--rule); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); }
+.cell { background: var(--surface-1); padding: 2rem; }
+@media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* nav cards on the overview page */
+.doc-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.doc-card { position: relative; display: block; text-decoration: none; background: var(--surface-1); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); padding: 1.5rem; border-radius: var(--radius-sm); transition: background var(--dur-base) var(--ease-instrument), transform var(--dur-base) var(--ease-instrument); }
+.doc-card:hover { background: var(--surface-2); transform: translateY(-2px); }
+.doc-card .idx { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--ink-ghost); letter-spacing: var(--tracking-label); }
+.doc-card h3 { margin: 0.75rem 0 0.25rem; font-size: 1.25rem; font-weight: 600; }
+.doc-card p { margin: 0; color: var(--ink-muted); font-size: 0.875rem; }
+.doc-card .accent { position: absolute; left: 0; top: 1.5rem; bottom: 1.5rem; width: 2px; border-radius: 2px; }
+@media (max-width: 880px) { .doc-cards { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .doc-cards { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer.page-footer { padding: 2rem 0 4rem; }
+
+@media (max-width: 880px) {
+  .ts-7xl { font-size: 3rem; }
+  .ts-6xl { font-size: 2.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Octavius — Style Guide / Primitives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styleguide.css" />
+<style>
+  .demo { background: var(--surface-1); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); padding: 2rem; border-radius: var(--radius-sm); min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; gap: 1.5rem; }
+  .frame-demo { position: relative; box-shadow: inset 0 0 0 var(--rule-width) var(--rule); height: 84px; }
+  .frame-demo .c { position: absolute; width: 14px; height: 14px; color: var(--ink-ghost); }
+  .frame-demo .c::before, .frame-demo .c::after { content:""; position:absolute; background: currentColor; }
+  .frame-demo .c::before { left:50%; top:0; width:var(--rule-width); height:100%; transform:translateX(-50%); }
+  .frame-demo .c::after  { top:50%; left:0; height:var(--rule-width); width:100%; transform:translateY(-50%); }
+  .frame-demo .tl{ top:-7px; left:-7px } .frame-demo .tr{ top:-7px; right:-7px }
+  .frame-demo .bl{ bottom:-7px; left:-7px } .frame-demo .br{ bottom:-7px; right:-7px }
+  /* buttons */
+  .btn { display:inline-flex; align-items:center; gap:0.625rem; padding:0.6rem 1.1rem; border-radius:var(--radius-sm); font-weight:500; font-size:0.9375rem; text-decoration:none; cursor:pointer; box-shadow: inset 0 0 0 var(--rule-width) var(--rule); background:transparent; color:var(--ink); transition: background var(--dur-base) var(--ease-instrument), color var(--dur-base) var(--ease-instrument), box-shadow var(--dur-base) var(--ease-instrument); }
+  .btn:hover { background: var(--surface-3); }
+  .btn-accent { box-shadow: inset 0 0 0 var(--rule-width) var(--odyssey); color: var(--odyssey); }
+  .btn-accent:hover { background: var(--odyssey); color: var(--bg); }
+  .btn .k { font-family: var(--font-mono); font-size: 0.625rem; }
+  /* readout (glass accent) */
+  .readout { width: 220px; background: oklch(19% 0.018 255 / 0.6); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); border-radius: var(--radius-md); padding: 1rem; }
+  .readout .k { font-family:var(--font-mono); font-size:0.625rem; color:var(--ink-faint); text-transform:uppercase; letter-spacing:var(--tracking-label); }
+  .readout .v { font-family:var(--font-mono); font-size:1.5rem; color:var(--odyssey); margin-top:0.25rem; }
+  /* product chip */
+  .pchip { display:inline-flex; align-items:center; gap:0.5rem; font-family:var(--font-mono); font-size:0.6875rem; text-transform:uppercase; letter-spacing:var(--tracking-label); padding:0.3rem 0.6rem; border-radius:999px; box-shadow: inset 0 0 0 var(--rule-width) var(--rule); }
+  .pchip .dot { width:8px; height:8px; border-radius:999px; }
+  /* scale bar */
+  .scalebar { display:flex; align-items:flex-end; gap:0; height:24px; }
+  .scalebar .tick { width:48px; border-left: var(--rule-width) solid var(--rule); height:8px; }
+  .scalebar .tick.major { height:16px; border-left-color: var(--rule-strong); }
+</style>
+</head>
+<body>
+  <span class="page-reg pr-tl"></span><span class="page-reg pr-tr"></span>
+  <span class="page-reg pr-bl"></span><span class="page-reg pr-br"></span>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">OCTAVIUS · <b>STYLE GUIDE</b></a>
+      <ul>
+        <li><a class="link" href="index.html">Overview</a></li>
+        <li><a class="link" href="color.html">Color</a></li>
+        <li><a class="link" href="typography.html">Type</a></li>
+        <li><a class="link" href="primitives.html" aria-current="page">Primitives</a></li>
+        <li><a class="link" href="motion.html">Motion</a></li>
+        <li><a class="link" href="examples.html">Examples</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="masthead datum-grid">
+    <div class="wrap">
+      <div class="margin-strip">
+        <span class="mono">§ 03 / PRIMITIVES</span>
+        <span class="mono mono-ghost">RECURRING MARKS + COMPONENTS</span>
+        <span class="mono">HAIRLINE 0.5PX</span>
+      </div>
+      <div class="title-block">
+        <div class="eyebrow" style="color:var(--reflex)">PRIMITIVES &amp; COMPONENTS</div>
+        <h1 class="ts-6xl" style="margin:0 0 1.25rem">The marks that recur</h1>
+        <p class="lead ts-xl">The small, repeated elements that give every page its instrument character — defined once, used everywhere.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- Core primitives -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 03.1 / CORE MARKS</span>
+        <h2 class="section-title">Four primitives</h2>
+      </div>
+      <div class="grid-2">
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.25rem">3.1 — COORDINATE-ANNOTATION LABEL</div>
+          <div class="mono" style="color:var(--odyssey); font-size:0.875rem">N 41.8781° · W 087.6298°</div>
+          <div class="mono mono-ghost" style="margin-top:6px">FIG. 02 / DEMAND·SURFACE</div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:1.5rem 0 0">Frames content as a point on a chart — bearing, datum, figure ref — sitting just outside the element.</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.25rem">3.2 — REGISTRATION MARK</div>
+          <div class="frame-demo">
+            <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+          </div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:1.5rem 0 0">Corner crosshairs / alignment targets. Built from 0.5px hairlines; may tint to a product hue when "locked".</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.25rem">3.3 — HAIRLINE DIVIDER · 0.5PX</div>
+          <hr class="rule" />
+          <div class="scalebar" style="margin-top:1rem">
+            <span class="tick major"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick major"></span><span class="tick"></span><span class="tick"></span><span class="tick"></span><span class="tick major"></span>
+          </div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:1.25rem 0 0">Exactly 0.5px. Variants: full-bleed, inset, labeled (scale bar). Emphasis via color, never weight.</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.25rem">3.4 — MONO MICRO-LABEL</div>
+          <div class="mono" style="font-size:0.75rem; color:var(--ink); line-height:2">OCT·001 &nbsp; § 02.3 &nbsp; SCALE 1:1 &nbsp; Δ COST &nbsp; v.2026</div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:1.5rem 0 0">The smallest instrument label — figure numbers, units, datum refs, running in margins and along rules.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Components -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 03.2 / COMPONENTS</span>
+        <h2 class="section-title">Built from the marks</h2>
+      </div>
+      <div class="grid-2">
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.5rem">BUTTONS</div>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center">
+            <a class="btn btn-accent" href="#">Read the instrument <span class="k">→</span></a>
+            <a class="btn" href="#">Secondary</a>
+          </div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:1.5rem 0 0">Hairline-framed, square-ish (2px radius). Accent button fills with the product hue on hover.</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.5rem">PRODUCT CHIPS</div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap">
+            <span class="pchip"><span class="dot" style="background:var(--cortex)"></span>Cortex</span>
+            <span class="pchip"><span class="dot" style="background:var(--reflex)"></span>Reflex</span>
+            <span class="pchip"><span class="dot" style="background:var(--imagine)"></span>Imagine</span>
+            <span class="pchip"><span class="dot" style="background:var(--odyssey)"></span>Odyssey</span>
+            <span class="pchip"><span class="dot" style="background:var(--traderoute)"></span>TradeRoute</span>
+          </div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:1.5rem 0 0">Each product tagged by its signature dot; the legend that lets the five hues sit together.</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.5rem">GLASS READOUT — THE ONE SANCTIONED BLUR</div>
+          <div class="readout">
+            <div class="k">Demand · 14d forecast</div>
+            <div class="v">+12.4%</div>
+            <hr class="rule" style="margin:0.75rem 0" />
+            <div class="k">Network state</div>
+            <div class="v" style="font-size:1.125rem; color:var(--ink)">NOMINAL</div>
+          </div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:1.5rem 0 0">Frosted blur is an accent only — a floating readout over a chart, never a primary surface.</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1.5rem">ANNOTATED PANEL</div>
+          <div class="frame-demo" style="height:auto; padding:1.25rem">
+            <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+            <div class="mono mono-ghost" style="margin-bottom:0.5rem">FIG. 03 / PANEL</div>
+            <div class="ts-base" style="color:var(--ink)">Content sits inside a registered frame.</div>
+          </div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:1.5rem 0 0">A hairline frame with corner registration marks and a mono figure label — the default container.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="page-footer wrap">
+    <div class="margin-strip footer-strip">
+      <span class="mono mono-ghost">§ 03 / PRIMITIVES &amp; COMPONENTS</span>
+      <span class="mono mono-ghost">OCT·001</span>
+    </div>
+  </footer>
+</body>
+</html>

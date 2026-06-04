@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Octavius — Style Guide / Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styleguide.css" />
+</head>
+<body>
+  <span class="page-reg pr-tl"></span><span class="page-reg pr-tr"></span>
+  <span class="page-reg pr-bl"></span><span class="page-reg pr-br"></span>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">OCTAVIUS · <b>STYLE GUIDE</b></a>
+      <ul>
+        <li><a class="link" href="index.html" aria-current="page">Overview</a></li>
+        <li><a class="link" href="color.html">Color</a></li>
+        <li><a class="link" href="typography.html">Type</a></li>
+        <li><a class="link" href="primitives.html">Primitives</a></li>
+        <li><a class="link" href="motion.html">Motion</a></li>
+        <li><a class="link" href="examples.html">Examples</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="masthead datum-grid">
+    <div class="wrap">
+      <div class="margin-strip">
+        <span class="mono">OCTAVIUS LOGISTICS</span>
+        <span class="mono mono-ghost">DOC · STYLEGUIDE / V.2026 · NON-PRODUCTION PREVIEW</span>
+        <span class="mono">LAT 0.000 · LON 0.000</span>
+      </div>
+      <div class="title-block">
+        <div class="eyebrow" style="color:var(--cortex)">INSTRUMENTS FOR THE INVISIBLE</div>
+        <h1 class="ts-7xl" style="margin:0 0 1.5rem">Visual<br/>Style Guide</h1>
+        <p class="lead ts-xl">
+          The working reference for the Octavius design language — precision
+          instrumentation meets cartography. Every page is built from the tokens
+          in <span class="mono mono-xs" style="color:var(--ink)">design-tokens.md</span>
+          and the rules in <span class="mono mono-xs" style="color:var(--ink)">CLAUDE.md</span>.
+        </p>
+      </div>
+      <div class="margin-strip footer-strip">
+        <span class="mono mono-ghost">FIG. 00 / DATUM</span>
+        <span class="mono mono-ghost">SCALE 1:1 · HAIRLINE 0.5PX</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- Concept recap -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 00 / CONCEPT</span>
+        <h2 class="section-title">Instruments for the Invisible</h2>
+      </div>
+      <p class="lead" style="margin-bottom:1rem">
+        Logistics runs on hidden structure — cost mechanics, network states,
+        demand, inventory lifecycle, decision logic. Octavius builds the
+        instruments that make that structure legible. Each product is an
+        instrument, not a feature set; the site shows the mechanism, never claims
+        magic.
+      </p>
+      <p class="lead">
+        The visual language is <strong style="color:var(--ink)">technical drawing
+        meets navigational chart</strong>: hairline rules, a faint coordinate
+        grid, contour lines, lat/long annotations, registration marks, and
+        monospace micro-labels — measured, exact, quietly confident,
+        intellectually serious.
+      </p>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Doc map -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 01 / CONTENTS</span>
+        <h2 class="section-title">The reference</h2>
+      </div>
+      <div class="doc-cards">
+        <a class="doc-card" href="color.html">
+          <span class="accent" style="background:var(--odyssey)"></span>
+          <span class="idx">01 / COLOR</span>
+          <h3>Color &amp; Palettes</h3>
+          <p>Canvas, ink, and rule neutrals; full tonal ramps for all five product hues; usage and contrast.</p>
+        </a>
+        <a class="doc-card" href="typography.html">
+          <span class="accent" style="background:var(--cortex)"></span>
+          <span class="idx">02 / TYPE</span>
+          <h3>Typography</h3>
+          <p>DM Sans + JetBrains Mono, the full modular scale, and the mono instrument-label treatment.</p>
+        </a>
+        <a class="doc-card" href="primitives.html">
+          <span class="accent" style="background:var(--reflex)"></span>
+          <span class="idx">03 / PRIMITIVES</span>
+          <h3>Primitives &amp; Components</h3>
+          <p>Coordinate labels, registration marks, hairline dividers, micro-labels, buttons, cards, readouts.</p>
+        </a>
+        <a class="doc-card" href="motion.html">
+          <span class="accent" style="background:var(--imagine)"></span>
+          <span class="idx">04 / MOTION</span>
+          <h3>Motion</h3>
+          <p>Easing curves, durations, and the scroll-driven assembly principles — with reduced-motion fallbacks.</p>
+        </a>
+        <a class="doc-card" href="examples.html">
+          <span class="accent" style="background:var(--traderoute)"></span>
+          <span class="idx">05 / EXAMPLES</span>
+          <h3>Examples in Context</h3>
+          <p>Product heroes and panels showing the system assembled — cartography (Odyssey) and reasoning (Cortex).</p>
+        </a>
+        <a class="doc-card" href="../../design-tokens.md">
+          <span class="accent" style="background:var(--rule-strong)"></span>
+          <span class="idx">REF / SOURCE</span>
+          <h3>design-tokens.md ↗</h3>
+          <p>The authoritative token spec these pages mirror. CLAUDE.md holds the concept, bans, and rules.</p>
+        </a>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Products at a glance -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 02 / PORTFOLIO</span>
+        <h2 class="section-title">Five instruments</h2>
+      </div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="chip" style="background:var(--cortex)"></div><div class="name">Cortex</div><div class="val">Deterministic-first reasoning</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--reflex)"></div><div class="name">Reflex</div><div class="val">Expertise automation</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--imagine)"></div><div class="name">Imagine</div><div class="val">Invoice audit / cost</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--odyssey)"></div><div class="name">Odyssey</div><div class="val">Fulfillment &amp; demand</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--traderoute)"></div><div class="name">TradeRoute</div><div class="val">Inventory lifecycle</div></div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section>
+      <div class="cell hairframe" style="background:var(--surface-1); border-left:2px solid var(--imagine); border-radius:0 2px 2px 0">
+        <div class="mono" style="margin-bottom:0.75rem">MAINTENANCE NOTE</div>
+        <p class="ts-sm" style="color:var(--ink-muted); margin:0">
+          This style guide is a living document. It is kept in sync as the design
+          system evolves — whenever tokens, hues, type, spacing, primitives, or
+          stack decisions change in
+          <span class="mono mono-xs" style="color:var(--ink)">design-tokens.md</span> /
+          <span class="mono mono-xs" style="color:var(--ink)">CLAUDE.md</span>,
+          these pages (and <span class="mono mono-xs" style="color:var(--ink)">styleguide.css</span>)
+          are updated to match. Standalone HTML; production is Next.js +
+          Tailwind + Framer Motion.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <footer class="page-footer wrap">
+    <div class="margin-strip footer-strip">
+      <span class="mono mono-ghost">OCTAVIUS LOGISTICS · INSTRUMENTS FOR THE INVISIBLE</span>
+      <span class="mono mono-ghost">END OF DATUM · OCT·001</span>
+    </div>
+  </footer>
+</body>
+</html>

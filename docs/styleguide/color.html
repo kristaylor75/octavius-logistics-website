@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Octavius — Style Guide / Color</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styleguide.css" />
+</head>
+<body>
+  <span class="page-reg pr-tl"></span><span class="page-reg pr-tr"></span>
+  <span class="page-reg pr-bl"></span><span class="page-reg pr-br"></span>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html">OCTAVIUS · <b>STYLE GUIDE</b></a>
+      <ul>
+        <li><a class="link" href="index.html">Overview</a></li>
+        <li><a class="link" href="color.html" aria-current="page">Color</a></li>
+        <li><a class="link" href="typography.html">Type</a></li>
+        <li><a class="link" href="primitives.html">Primitives</a></li>
+        <li><a class="link" href="motion.html">Motion</a></li>
+        <li><a class="link" href="examples.html">Examples</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="masthead datum-grid">
+    <div class="wrap">
+      <div class="margin-strip">
+        <span class="mono">§ 01 / COLOR</span>
+        <span class="mono mono-ghost">OKLCH · CONSTANT L/C, VARYING H</span>
+        <span class="mono">PALETTE</span>
+      </div>
+      <div class="title-block">
+        <div class="eyebrow" style="color:var(--odyssey)">COLOR SYSTEM</div>
+        <h1 class="ts-6xl" style="margin:0 0 1.25rem">Color &amp; Palettes</h1>
+        <p class="lead ts-xl">
+          A near-black instrument canvas, a cool neutral ink ramp, and five
+          product signature hues — each derived in OKLCH so perceived lightness
+          and chroma hold constant while only hue rotates.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- Canvas & neutrals -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 01.1 / NEUTRALS</span>
+        <h2 class="section-title">Canvas &amp; Ink</h2>
+      </div>
+      <p class="lead" style="margin-bottom:2rem">Surfaces ascend in lightness; ink descends. A faint blue-cool cast (H ≈ 255) unifies every neutral.</p>
+      <div class="swatch-grid" id="neutrals"></div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Neutral ramp -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 01.2 / NEUTRAL RAMP</span>
+        <h2 class="section-title">Full neutral scale</h2>
+      </div>
+      <p class="lead" style="margin-bottom:2rem">Nine steps at H 255 / low chroma — the structural greys behind surfaces, rules, and text.</p>
+      <div id="neutral-ramp"></div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Product hue ramps -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 01.3 / SIGNATURE HUES</span>
+        <h2 class="section-title">Per-product tonal ramps</h2>
+      </div>
+      <p class="lead" style="margin-bottom:2rem">
+        Each product is one hue. Base sits at <span class="mono mono-xs" style="color:var(--ink)">L 72 / C 0.16</span>;
+        the ramp extends to lighter tints (text/active states on dark) and deeper
+        shades (subtle fills, contour bands). Chroma peaks near mid-lightness, as
+        OKLCH gamut allows. The base step is marked <span class="mono mono-xs" style="color:var(--ink)">◆</span>.
+      </p>
+      <div id="hue-ramps"></div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Base / vivid / subtle -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 01.4 / VARIANTS</span>
+        <h2 class="section-title">Subtle · Base · Vivid</h2>
+      </div>
+      <p class="lead" style="margin-bottom:2rem">The three working tokens per product: <em>subtle</em> for fills/washes, <em>base</em> for data ink and accents, <em>vivid</em> for emphasis and active states.</p>
+      <div id="variants" class="swatch-grid"></div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- Usage -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 01.5 / USAGE</span>
+        <h2 class="section-title">In context</h2>
+      </div>
+      <div class="grid-2">
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1rem">DATA INK ON CANVAS</div>
+          <div style="font-family:var(--font-mono); font-size:1.5rem; color:var(--odyssey)">+12.4%</div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:0.5rem 0 0">Signature hue carries data — readings, deltas, plotted lines. Never a background flood.</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1rem">SUBTLE FILL + HAIRLINE</div>
+          <div class="hairframe" style="background:var(--cortex-subtle); border-radius:var(--radius-sm); height:48px; box-shadow:inset 0 0 0 var(--rule-width) var(--cortex)"></div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:0.75rem 0 0">Subtle tone as a quiet panel wash, framed by a hairline in the base hue.</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1rem">TEXT CONTRAST (WCAG AA)</div>
+          <p style="margin:0"><span style="color:var(--ink)">ink</span> · <span style="color:var(--ink-muted)">ink-muted</span> · <span style="color:var(--ink-faint)" class="mono">ink-faint label</span></p>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:0.75rem 0 0">ink &amp; ink-muted pass AA for body. ink-faint is for ≥12px mono labels only.</p>
+        </div>
+        <div class="cell">
+          <div class="mono" style="margin-bottom:1rem">SEMANTIC MAPPING</div>
+          <p class="ts-sm" style="color:var(--ink-muted); margin:0">
+            States borrow product hues rather than adding a new palette:
+            <span style="color:var(--traderoute)">success → green</span>,
+            <span style="color:var(--imagine)">caution → amber</span>,
+            <span style="color:var(--reflex)">alert → magenta</span>.
+            Keep semantic use sparing so product identity stays primary.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section>
+      <div class="cell hairframe" style="background:var(--surface-1); border-left:2px solid var(--imagine); border-radius:0 2px 2px 0">
+        <div class="mono" style="margin-bottom:0.75rem">NOTE · GAMUT</div>
+        <p class="ts-sm" style="color:var(--ink-muted); margin:0">
+          Ramp values are authored in OKLCH and rendered by the browser. On
+          displays without wide-gamut (P3) support, the most saturated steps
+          clamp toward sRGB — they stay on-hue but read slightly less vivid.
+          Verify final values against the deployment target before locking.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <footer class="page-footer wrap">
+    <div class="margin-strip footer-strip">
+      <span class="mono mono-ghost">§ 01 / COLOR · OKLCH PALETTE</span>
+      <span class="mono mono-ghost">OCT·001</span>
+    </div>
+  </footer>
+
+  <script>
+    /* ---- Data ---- */
+    const NEUTRALS = [
+      ['--bg',        'oklch(16% 0.015 255)', 'bg',        'page canvas'],
+      ['--surface-1', 'oklch(19% 0.018 255)', 'surface-1', 'raised panel'],
+      ['--surface-2', 'oklch(23% 0.020 255)', 'surface-2', 'card / readout'],
+      ['--surface-3', 'oklch(28% 0.022 255)', 'surface-3', 'hover / elevated'],
+      ['--rule',      'oklch(34% 0.012 255)', 'rule',      'hairline 0.5px'],
+      ['--rule-strong','oklch(44% 0.014 255)','rule-strong','emphasized rule'],
+      ['--ink-ghost', 'oklch(46% 0.010 255)', 'ink-ghost', 'ticks / least'],
+      ['--ink-faint', 'oklch(62% 0.012 255)', 'ink-faint', 'mono labels'],
+      ['--ink-muted', 'oklch(78% 0.012 255)', 'ink-muted', 'secondary text'],
+      ['--ink',       'oklch(96% 0.010 255)', 'ink',       'primary text'],
+    ];
+
+    // L steps and per-step chroma profile (chroma peaks mid-lightness)
+    const L_STEPS = [95, 88, 80, 72, 64, 56, 44, 32, 24];
+    const C_AT    = { 95:0.03, 88:0.07, 80:0.12, 72:0.16, 64:0.18, 56:0.17, 44:0.13, 32:0.09, 24:0.06 };
+    const NEUTRAL_C = 0.012;
+
+    const HUES = [
+      ['Cortex',     275, 'Deterministic-first reasoning'],
+      ['Reflex',     340, 'Expertise automation'],
+      ['Imagine',     75, 'Invoice audit / cost'],
+      ['Odyssey',    215, 'Fulfillment & demand'],
+      ['TradeRoute', 150, 'Inventory lifecycle'],
+    ];
+
+    const VARIANTS = [
+      ['Cortex','--cortex'], ['Reflex','--reflex'], ['Imagine','--imagine'],
+      ['Odyssey','--odyssey'], ['TradeRoute','--traderoute'],
+    ];
+
+    /* ---- Helpers ---- */
+    const oklch = (l, c, h) => `oklch(${l}% ${c} ${h})`;
+    const textOn = (l) => (l >= 60 ? 'oklch(20% 0.02 255)' : 'oklch(96% 0.01 255)');
+
+    /* ---- Neutrals swatches ---- */
+    document.getElementById('neutrals').innerHTML = NEUTRALS.map(([v,val,nm,role]) => `
+      <div class="swatch">
+        <div class="chip" style="background:${val}"></div>
+        <div class="name">${nm}</div>
+        <div class="val">${val}</div>
+        <div class="val" style="color:var(--ink-ghost)">${role}</div>
+      </div>`).join('');
+
+    /* ---- Neutral ramp ---- */
+    document.getElementById('neutral-ramp').innerHTML = `
+      <div class="ramp">
+        <div class="ramp-label"><div class="nm">Neutral</div><div class="role mono mono-ghost">H 255</div></div>
+        <div class="steps">
+          ${L_STEPS.map(l => {
+            const val = oklch(l, NEUTRAL_C, 255);
+            return `<div class="step" style="background:${val}"><span class="l" style="color:${textOn(l)}">${l}</span></div>`;
+          }).join('')}
+        </div>
+      </div>`;
+
+    /* ---- Product hue ramps ---- */
+    document.getElementById('hue-ramps').innerHTML = HUES.map(([name,h,role]) => `
+      <div class="ramp">
+        <div class="ramp-label"><div class="nm">${name}</div><div class="role">${role}</div><div class="role mono mono-ghost">H ${h}</div></div>
+        <div class="steps">
+          ${L_STEPS.map(l => {
+            const c = C_AT[l];
+            const val = oklch(l, c, h);
+            const base = l === 72 ? ' ◆' : '';
+            return `<div class="step" style="background:${val}"><span class="l" style="color:${textOn(l)}">${l}${base}</span></div>`;
+          }).join('')}
+        </div>
+      </div>`).join('');
+
+    /* ---- Variants (subtle/base/vivid) ---- */
+    document.getElementById('variants').innerHTML = VARIANTS.map(([name,base]) => `
+      <div class="swatch">
+        <div style="display:flex; gap:var(--rule-width); height:60px; border-radius:var(--radius-sm); overflow:hidden; box-shadow:inset 0 0 0 var(--rule-width) var(--rule); margin-bottom:0.75rem">
+          <div style="flex:1; background:var(${base}-subtle)"></div>
+          <div style="flex:1; background:var(${base})"></div>
+          <div style="flex:1; background:var(${base}-vivid)"></div>
+        </div>
+        <div class="name">${name}</div>
+        <div class="val">subtle · base · vivid</div>
+      </div>`).join('');
+  </script>
+</body>
+</html>
