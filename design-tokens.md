@@ -322,3 +322,51 @@ shadow-heavy (avoids the soft "glow" the Hard Bans reject).
 
 Glassmorphism, if used at all, is an accent only (a floating readout over a
 chart) — see [CLAUDE.md](CLAUDE.md) §3.
+
+---
+
+## 9. The Deep — depth field
+
+The ambient "deep water" atmosphere (a persistent layer behind all content). It
+is the *invisible medium*; the instruments are the legible marks on it. The
+static field is the SSR/first-paint baseline, the permanent experience for
+reduced-motion and low-tier devices, and the visual target the animated WebGL
+scene matches in later phases.
+
+It must read as **the instrument canvas acquiring depth — a chart datum
+dissolving into the deep — not a saturated blue gradient** ([CLAUDE.md](CLAUDE.md)
+§3). So the tokens are drawn straight from the surface ramp: low chroma
+(≤ 0.02), `--deep-mid` *is* the canvas, and the only "depth" cue is a faint hue
+drift (teal 245° → 255° → indigo 265°).
+
+```css
+:root {
+  --deep-surface: oklch(22% 0.02 245);  /* near-surface water, slightly elevated L, faint teal lean */
+  --deep-mid:     var(--bg);             /* the existing canvas = mid water (reading band, unchanged) */
+  --deep-floor:   oklch(11% 0.018 265);  /* the floor: darker, faint indigo lean                     */
+  --deep-grid-fade: 0.5;                 /* how strongly the datum grid persists at the surface (scalar) */
+}
+```
+
+Contrast ([CLAUDE.md](CLAUDE.md) §6): `--deep-surface` L is held at **22%** so
+`--ink-faint` mono micro-labels still clear WCAG AA over the *brightest* (surface)
+band (4.75:1). `--deep-mid` = `--bg` leaves the bulk of the reading area
+identical to today; the floor is darker than the canvas, so contrast only
+improves toward the bottom.
+
+Usage notes:
+
+- The field is **fixed to the viewport**, never scroll-animated, in the static
+  phase.
+- The **datum grid** (`.datum-grid`) overlays the field, masked so it is most
+  present at the surface and dissolves toward the floor (strength keyed off
+  `--deep-grid-fade`) — graph paper dissolving into the deep.
+- **Bioluminescent accents** (faint hue radial marks in the surface band) are an
+  *accent at most*, soft and **never animated**. They use the **`-subtle` hue
+  tokens** (L30, low chroma), not the bright base hues: a bright base hue spikes
+  luminance and drops `--ink-faint` below AA at only ~4% tint, whereas a subtle
+  token holds AA to ~0.18 opacity even at its peak — so legibility survives at
+  any scroll position regardless of where a label lands (verified, ~4.55:1).
+  They read as faint living light deep in the water, never a hero glow
+  ([CLAUDE.md](CLAUDE.md) §8).
+

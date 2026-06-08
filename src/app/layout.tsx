@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { DeepProvider } from "@/scene/DeepProvider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -41,6 +42,7 @@ export default function RootLayout({
       className={`${dmSans.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
       <body className="relative min-h-full flex flex-col">
+        <DeepProvider />
         {/* Very restrained film grain — fractal-noise overlay, low opacity. */}
         <div
           aria-hidden

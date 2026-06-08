@@ -23,6 +23,17 @@
   --rule-strong: oklch(44% 0.014 255);
   --grid: oklch(26% 0.01 255 / 0.6);
 
+  /* ---- The Deep — static depth field (design-tokens.md §9) ----
+     Derived from the surface ramp (low chroma, hue ~255) so the field reads as
+     the instrument canvas gaining depth, not a saturated gradient. A faint hue
+     drift (teal 245 → 255 → indigo 265) is the only depth cue. --deep-mid IS the
+     canvas so the reading band is unchanged. Surface L kept at 22% so ink-faint
+     mono labels still clear WCAG AA over the brightest band (4.75:1). */
+  --deep-surface: oklch(22% 0.02 245);
+  --deep-mid: var(--bg);
+  --deep-floor: oklch(11% 0.018 265);
+  --deep-grid-fade: 0.5; /* datum-grid persistence at the surface (scalar) */
+
   /* ---- Signature hues — base (design-tokens.md §2) ---- */
   --cortex: oklch(72% 0.16 275);
   --reflex: oklch(72% 0.16 340);
@@ -116,6 +127,10 @@
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
+
+  --color-deep-surface: var(--deep-surface);
+  --color-deep-mid: var(--deep-mid);
+  --color-deep-floor: var(--deep-floor);
 
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
