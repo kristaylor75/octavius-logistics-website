@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Octavius — Visual Style Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     OCTAVIUS DESIGN TOKENS  (mirrors design-tokens.md)
+     Non-production preview: tokens are inlined so the file opens
+     standalone. Source of truth = design-tokens.md / CLAUDE.md.
+
+     PRODUCTION STACK (per CLAUDE.md §5):
+       Next.js (App Router) + TypeScript + Tailwind.
+       Server Components by default; 'use client' ONLY for the hero
+       and the five interactive demos. Marketing pages statically
+       generated. Framer Motion (useScroll/useTransform) for scroll
+       choreography. Each demo lazy-loaded via next/dynamic.
+     This HTML mock uses plain CSS + an IntersectionObserver as a
+     stand-in for the Framer Motion scroll choreography.
+     ============================================================ */
+  :root {
+    /* Surfaces */
+    --bg:        oklch(16% 0.015 255);
+    --surface-1: oklch(19% 0.018 255);
+    --surface-2: oklch(23% 0.020 255);
+    --surface-3: oklch(28% 0.022 255);
+    /* Ink */
+    --ink:       oklch(96% 0.010 255);
+    --ink-muted: oklch(78% 0.012 255);
+    --ink-faint: oklch(62% 0.012 255);
+    --ink-ghost: oklch(46% 0.010 255);
+    /* Lines */
+    --rule:        oklch(34% 0.012 255);
+    --rule-strong: oklch(44% 0.014 255);
+    --grid:        oklch(26% 0.010 255 / 0.6);
+    /* Signature hues */
+    --cortex:     oklch(72% 0.16 275);
+    --reflex:     oklch(72% 0.16 340);
+    --imagine:    oklch(72% 0.16 75);
+    --odyssey:    oklch(72% 0.16 215);
+    --traderoute: oklch(72% 0.16 150);
+    --cortex-vivid:     oklch(68% 0.20 275);
+    --reflex-vivid:     oklch(68% 0.20 340);
+    --imagine-vivid:    oklch(68% 0.20 75);
+    --odyssey-vivid:    oklch(68% 0.20 215);
+    --traderoute-vivid: oklch(68% 0.20 150);
+    --cortex-subtle:     oklch(30% 0.05 275);
+    --reflex-subtle:     oklch(30% 0.05 340);
+    --imagine-subtle:    oklch(30% 0.05 75);
+    --odyssey-subtle:    oklch(30% 0.05 215);
+    --traderoute-subtle: oklch(30% 0.05 150);
+    /* Type */
+    --font-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+    --tracking-label: 0.1em;
+    --tracking-tight: -0.01em;
+    /* Grid — 0.5px hairline rules (see design-tokens.md §5 note) */
+    --rule-width: 0.5px;
+    --grid-cell:  8px;
+    --content-max: 72rem;
+    /* Motion */
+    --ease-instrument: cubic-bezier(0.2, 0.0, 0.0, 1.0);
+    --ease-plot:       cubic-bezier(0.4, 0.0, 0.2, 1.0);
+    --dur-base:   300ms;
+    --dur-draw:   600ms;
+    --dur-settle: 900ms;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* faint coordinate lattice — the chart datum */
+  .datum-grid {
+    background-image:
+      linear-gradient(to right,  var(--grid) var(--rule-width), transparent var(--rule-width)),
+      linear-gradient(to bottom, var(--grid) var(--rule-width), transparent var(--rule-width));
+    background-size: var(--grid-cell) var(--grid-cell);
+  }
+
+  .wrap { max-width: var(--content-max); margin: 0 auto; padding: 0 2rem; }
+
+  /* ---- Mono micro-label / coordinate annotation ---- */
+  .mono {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    font-size: 0.6875rem;
+    color: var(--ink-faint);
+    line-height: 1.3;
+  }
+  .mono-xs { font-size: 0.75rem; }
+  .mono-ghost { color: var(--ink-ghost); }
+
+  /* ---- Hairline dividers (0.5px; on hi-DPR renders as 1 device px) ---- */
+  .rule { border: 0; height: var(--rule-width); background: var(--rule); margin: 0; }
+  .rule-labeled {
+    display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 1rem;
+  }
+  .rule-labeled::after { content: ""; height: var(--rule-width); background: var(--rule); }
+
+  /* hairline frames use box-shadow inset so width tracks --rule-width exactly */
+  .hairframe { box-shadow: inset 0 0 0 var(--rule-width) var(--rule); }
+
+  /* ---- Registration mark (corner crosshair) ---- */
+  .regmark { width: 16px; height: 16px; position: relative; color: var(--ink-ghost); }
+  .regmark::before, .regmark::after { content: ""; position: absolute; background: currentColor; }
+  .regmark::before { left: 50%; top: 0; width: var(--rule-width); height: 100%; transform: translateX(-50%); }
+  .regmark::after  { top: 50%; left: 0; height: var(--rule-width); width: 100%; transform: translateY(-50%); }
+
+  /* ---- Section scaffolding ---- */
+  section { padding: 6rem 0; position: relative; }
+  .section-head { display: flex; align-items: baseline; gap: 1.5rem; margin-bottom: 2.5rem; }
+  .section-head .fig { white-space: nowrap; }
+  h2.section-title {
+    font-size: 2.75rem; line-height: 1.08; font-weight: 600;
+    letter-spacing: var(--tracking-tight); margin: 0;
+  }
+
+  /* ---- Color swatches ---- */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: var(--rule-width); background: var(--rule); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); }
+  .swatch { background: var(--surface-1); padding: 1rem; }
+  .chip { height: 64px; border-radius: 2px; box-shadow: inset 0 0 0 var(--rule-width) var(--rule); margin-bottom: 0.75rem; }
+  .swatch .name { font-family: var(--font-display); font-weight: 500; font-size: 0.875rem; }
+  .swatch .val  { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--ink-faint); margin-top: 2px; }
+
+  /* product hue rail */
+  .hue-rail { display: grid; grid-template-columns: repeat(5,1fr); gap: 1.5rem; }
+  .hue-card { box-shadow: inset 0 0 0 var(--rule-width) var(--rule); padding: 1.25rem; position: relative; background: var(--surface-1); }
+  .hue-card .bar { height: 6px; border-radius: 999px; margin-bottom: 1rem; }
+  .hue-card h3 { margin: 0; font-size: 1.125rem; font-weight: 600; }
+  .hue-card .role { color: var(--ink-muted); font-size: 0.8125rem; margin-top: 0.25rem; }
+  .hue-card .tri { display: flex; gap: 4px; margin-top: 1rem; }
+  .hue-card .tri span { flex: 1; height: 20px; border-radius: 2px; }
+
+  /* ---- Type scale ---- */
+  .type-row { display: grid; grid-template-columns: 110px 1fr; gap: 2rem; align-items: baseline; padding: 0.75rem 0; border-bottom: var(--rule-width) solid var(--rule); }
+  .type-row .meta { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--ink-faint); }
+  .ts-7xl { font-size: 4.5rem; line-height: 1.02; font-weight: 600; letter-spacing: var(--tracking-tight); }
+  .ts-5xl { font-size: 2.75rem; line-height: 1.08; font-weight: 600; }
+  .ts-3xl { font-size: 1.75rem; line-height: 1.2; font-weight: 600; }
+  .ts-xl  { font-size: 1.125rem; line-height: 1.5; }
+  .ts-base{ font-size: 1rem; line-height: 1.6; color: var(--ink-muted); }
+
+  /* ---- Primitive demo cells ---- */
+  .prim-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: var(--rule-width); background: var(--rule); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); }
+  .prim { background: var(--surface-1); padding: 2rem; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between; }
+  .prim .label { margin-bottom: 1.5rem; }
+  .frame-demo { position: relative; box-shadow: inset 0 0 0 var(--rule-width) var(--rule); height: 80px; }
+  .frame-demo .c { position: absolute; width: 14px; height: 14px; color: var(--ink-ghost); }
+  .frame-demo .c::before, .frame-demo .c::after { content:""; position:absolute; background: currentColor; }
+  .frame-demo .c::before { left:50%; top:0; width:var(--rule-width); height:100%; transform: translateX(-50%); }
+  .frame-demo .c::after  { top:50%; left:0; height:var(--rule-width); width:100%; transform: translateY(-50%); }
+  .frame-demo .tl{ top:-7px; left:-7px } .frame-demo .tr{ top:-7px; right:-7px }
+  .frame-demo .bl{ bottom:-7px; left:-7px } .frame-demo .br{ bottom:-7px; right:-7px }
+
+  /* ============================================================
+     EXAMPLE: Odyssey product hero (cartography in context)
+     ============================================================ */
+  .hero { position: relative; overflow: hidden; border-top: var(--rule-width) solid var(--rule); border-bottom: var(--rule-width) solid var(--rule); }
+  .hero-inner { position: relative; padding: 7rem 0; }
+  .hero .eyebrow { color: var(--odyssey); margin-bottom: 1.5rem; }
+  .hero h1 { font-size: 4.5rem; line-height: 1.0; font-weight: 600; letter-spacing: var(--tracking-tight); margin: 0 0 1.5rem; max-width: 16ch; }
+  .hero h1 em { font-style: normal; color: var(--odyssey); }
+  .hero p.lede { font-size: 1.375rem; line-height: 1.4; color: var(--ink-muted); max-width: 46ch; margin: 0 0 2.5rem; }
+  .hero .cta { display: inline-flex; align-items: center; gap: 0.75rem; box-shadow: inset 0 0 0 var(--rule-width) var(--odyssey); color: var(--odyssey); padding: 0.75rem 1.25rem; border-radius: 2px; text-decoration: none; font-weight: 500; transition: background var(--dur-base) var(--ease-instrument), color var(--dur-base) var(--ease-instrument); }
+  .hero .cta:hover { background: var(--odyssey); color: var(--bg); }
+
+  /* contour backdrop, plotted in via SVG stroke-dash on scroll */
+  .hero svg.contours { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .hero svg.contours path { fill: none; stroke: var(--odyssey); stroke-width: 1; opacity: 0.22;
+    stroke-dasharray: 2600; stroke-dashoffset: 2600; }
+  .plotted path { animation: plot var(--dur-settle) var(--ease-plot) forwards; }
+  .plotted path:nth-child(2){ animation-delay: 90ms }
+  .plotted path:nth-child(3){ animation-delay: 180ms }
+  .plotted path:nth-child(4){ animation-delay: 270ms }
+  .plotted path:nth-child(5){ animation-delay: 360ms }
+  .plotted path:nth-child(6){ animation-delay: 450ms }
+  @keyframes plot { to { stroke-dashoffset: 0; } }
+
+  /* floating readout — the ONE sanctioned glass accent */
+  .readout {
+    position: absolute; right: 2rem; bottom: 2rem; width: 220px;
+    background: oklch(19% 0.018 255 / 0.6); backdrop-filter: blur(8px);
+    box-shadow: inset 0 0 0 var(--rule-width) var(--rule); border-radius: 4px; padding: 1rem;
+  }
+  .readout .k { font-family: var(--font-mono); font-size: 0.6875rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: var(--tracking-label); }
+  .readout .v { font-family: var(--font-mono); font-size: 1.75rem; color: var(--odyssey); margin-top: 0.25rem; }
+  .readout .rule { margin: 0.75rem 0; }
+
+  /* top + bottom margin coordinate strips */
+  .margin-strip { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: var(--rule-width) solid var(--rule); }
+  .footer-strip { border-bottom: 0; border-top: var(--rule-width) solid var(--rule); }
+
+  /* corner registration marks on the page frame */
+  .page-reg { position: fixed; width: 18px; height: 18px; color: var(--ink-ghost); z-index: 50; pointer-events: none; }
+  .page-reg::before, .page-reg::after { content:""; position:absolute; background: currentColor; }
+  .page-reg::before { left:50%; top:0; width:var(--rule-width); height:100%; transform: translateX(-50%); }
+  .page-reg::after  { top:50%; left:0; height:var(--rule-width); width:100%; transform: translateY(-50%); }
+  .pr-tl{ top:14px; left:14px } .pr-tr{ top:14px; right:14px }
+  .pr-bl{ bottom:14px; left:14px } .pr-br{ bottom:14px; right:14px }
+
+  .note { background: var(--surface-1); box-shadow: inset 0 0 0 var(--rule-width) var(--rule); border-left: 2px solid var(--imagine); padding: 1rem 1.25rem; border-radius: 0 2px 2px 0; color: var(--ink-muted); font-size: 0.875rem; }
+
+  @media (max-width: 880px) {
+    .hue-rail { grid-template-columns: 1fr 1fr; }
+    .prim-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 3rem; }
+    .ts-7xl { font-size: 3rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plotted path { animation: none; stroke-dashoffset: 0; }
+    * { transition-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+  <span class="page-reg pr-tl"></span>
+  <span class="page-reg pr-tr"></span>
+  <span class="page-reg pr-bl"></span>
+  <span class="page-reg pr-br"></span>
+
+  <!-- ===== Masthead ===== -->
+  <header class="datum-grid" style="border-bottom:var(--rule-width) solid var(--rule)">
+    <div class="wrap">
+      <div class="margin-strip">
+        <span class="mono">OCTAVIUS LOGISTICS</span>
+        <span class="mono mono-ghost">DOC · STYLEGUIDE / V.2026 · NON-PRODUCTION PREVIEW</span>
+        <span class="mono">LAT 0.000 · LON 0.000</span>
+      </div>
+      <div style="padding:5rem 0 4rem; max-width:60ch">
+        <div class="mono" style="color:var(--cortex); margin-bottom:1.5rem">INSTRUMENTS FOR THE INVISIBLE</div>
+        <h1 class="ts-7xl" style="margin:0 0 1.5rem">Visual<br/>Style Guide</h1>
+        <p class="ts-xl" style="color:var(--ink-muted); margin:0">
+          A working reference for the Octavius design language — precision
+          instrumentation meets cartography. Everything below is built from the
+          tokens in <span class="mono mono-xs" style="color:var(--ink)">design-tokens.md</span>.
+        </p>
+      </div>
+      <div class="margin-strip footer-strip">
+        <span class="mono mono-ghost">FIG. 00 / DATUM</span>
+        <span class="mono mono-ghost">SCALE 1:1 · HAIRLINE 0.5PX</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- ===== Color ===== -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 01 / COLOR</span>
+        <h2 class="section-title">Canvas &amp; Ink</h2>
+      </div>
+      <div class="swatch-grid" style="margin-bottom:2rem">
+        <div class="swatch"><div class="chip" style="background:var(--bg)"></div><div class="name">bg</div><div class="val">oklch(16% .015 255)</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--surface-1)"></div><div class="name">surface-1</div><div class="val">oklch(19% .018 255)</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--surface-2)"></div><div class="name">surface-2</div><div class="val">oklch(23% .020 255)</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--surface-3)"></div><div class="name">surface-3</div><div class="val">oklch(28% .022 255)</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--ink)"></div><div class="name">ink</div><div class="val">oklch(96% .010 255)</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--ink-muted)"></div><div class="name">ink-muted</div><div class="val">oklch(78% .012 255)</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--ink-faint)"></div><div class="name">ink-faint</div><div class="val">oklch(62% .012 255)</div></div>
+        <div class="swatch"><div class="chip" style="background:var(--rule)"></div><div class="name">rule</div><div class="val">oklch(34% .012 255)</div></div>
+      </div>
+
+      <div class="section-head" style="margin:3rem 0 2rem">
+        <span class="mono fig">§ 01.2 / SIGNATURE HUES</span>
+        <h2 class="section-title" style="font-size:1.75rem">One instrument, one hue</h2>
+      </div>
+      <p class="ts-base" style="max-width:60ch; margin-top:-1rem; margin-bottom:2rem">
+        Constant L 72% / C 0.16 — only H varies — so the five read as a single
+        coordinated instrument set. Bars show base; the strip below each shows
+        subtle → base → vivid.
+      </p>
+      <div class="hue-rail">
+        <div class="hue-card"><div class="bar" style="background:var(--cortex)"></div><div class="mono mono-ghost">H 275</div><h3>Cortex</h3><div class="role">Deterministic-first reasoning</div><div class="tri"><span style="background:var(--cortex-subtle)"></span><span style="background:var(--cortex)"></span><span style="background:var(--cortex-vivid)"></span></div></div>
+        <div class="hue-card"><div class="bar" style="background:var(--reflex)"></div><div class="mono mono-ghost">H 340</div><h3>Reflex</h3><div class="role">Expertise automation</div><div class="tri"><span style="background:var(--reflex-subtle)"></span><span style="background:var(--reflex)"></span><span style="background:var(--reflex-vivid)"></span></div></div>
+        <div class="hue-card"><div class="bar" style="background:var(--imagine)"></div><div class="mono mono-ghost">H 75</div><h3>Imagine</h3><div class="role">Invoice audit / cost</div><div class="tri"><span style="background:var(--imagine-subtle)"></span><span style="background:var(--imagine)"></span><span style="background:var(--imagine-vivid)"></span></div></div>
+        <div class="hue-card"><div class="bar" style="background:var(--odyssey)"></div><div class="mono mono-ghost">H 215</div><h3>Odyssey</h3><div class="role">Fulfillment &amp; demand</div><div class="tri"><span style="background:var(--odyssey-subtle)"></span><span style="background:var(--odyssey)"></span><span style="background:var(--odyssey-vivid)"></span></div></div>
+        <div class="hue-card"><div class="bar" style="background:var(--traderoute)"></div><div class="mono mono-ghost">H 150</div><h3>TradeRoute</h3><div class="role">Inventory lifecycle</div><div class="tri"><span style="background:var(--traderoute-subtle)"></span><span style="background:var(--traderoute)"></span><span style="background:var(--traderoute-vivid)"></span></div></div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- ===== Type ===== -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 02 / TYPE</span>
+        <h2 class="section-title">DM Sans + JetBrains Mono</h2>
+      </div>
+      <div class="type-row"><div class="meta">7XL · 72/1.02<br/>DISPLAY</div><div class="ts-7xl">Legible</div></div>
+      <div class="type-row"><div class="meta">5XL · 44/1.08<br/>SECTION</div><div class="ts-5xl">Make the hidden structure readable</div></div>
+      <div class="type-row"><div class="meta">3XL · 28/1.2<br/>HEADING</div><div class="ts-3xl">Each product is an instrument</div></div>
+      <div class="type-row"><div class="meta">XL · 18/1.5<br/>LEAD</div><div class="ts-xl">Octavius builds the instruments that make logistics legible — cost mechanics, network states, demand, inventory lifecycle.</div></div>
+      <div class="type-row"><div class="meta">BASE · 16/1.6<br/>BODY</div><div class="ts-base">Body copy in DM Sans. An instrument does not generate the world; it reveals something already there with precision and trust. We show the mechanism rather than claim magic.</div></div>
+      <div class="type-row"><div class="meta">2XS · 11<br/>MONO LABEL</div><div class="mono">N 41°·W 087° · FIG 02 / COST·SURFACE · LAT 0.000 LON 0.000 · Δ COST · SCALE 1:1</div></div>
+    </section>
+
+    <hr class="rule" />
+
+    <!-- ===== Primitives ===== -->
+    <section>
+      <div class="section-head">
+        <span class="mono fig">§ 03 / PRIMITIVES</span>
+        <h2 class="section-title">Recurring marks</h2>
+      </div>
+      <div class="prim-grid">
+        <div class="prim">
+          <div><div class="mono label">3.1 — COORDINATE-ANNOTATION LABEL</div>
+          <div class="mono" style="color:var(--odyssey); font-size:0.875rem">N 41.8781° · W 087.6298°</div>
+          <div class="mono mono-ghost" style="margin-top:6px">FIG. 02 / DEMAND·SURFACE</div></div>
+          <div class="mono mono-ghost">Frames content as a point on a chart</div>
+        </div>
+        <div class="prim">
+          <div class="mono label">3.2 — REGISTRATION MARK</div>
+          <div class="frame-demo">
+            <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+          </div>
+          <div class="mono mono-ghost">Corner crosshairs / alignment targets</div>
+        </div>
+        <div class="prim">
+          <div><div class="mono label">3.3 — HAIRLINE DIVIDER · 0.5PX</div>
+            <hr class="rule" style="margin:1.25rem 0" />
+            <div class="rule-labeled"><span class="mono mono-ghost">§ 02.3 · SCALE BAR</span></div>
+          </div>
+          <div class="mono mono-ghost">0.5px · emphasis via color, not weight</div>
+        </div>
+        <div class="prim">
+          <div><div class="mono label">3.4 — MONO MICRO-LABEL</div>
+          <div class="mono" style="font-size:0.75rem; color:var(--ink); line-height:2">OCT·001 &nbsp; § 02.3 &nbsp; SCALE 1:1 &nbsp; Δ COST &nbsp; v.2026</div></div>
+          <div class="mono mono-ghost">Margin labels, figure numbers, units</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <hr class="rule" />
+
+  <!-- ===== Example hero in context: ODYSSEY ===== -->
+  <section style="padding:0">
+    <div class="wrap" style="padding-top:2rem">
+      <div class="margin-strip">
+        <span class="mono">FIG. 03 / EXAMPLE PRODUCT HERO — ODYSSEY</span>
+        <span class="mono mono-ghost">CARTOGRAPHY IN CONTEXT</span>
+      </div>
+    </div>
+    <div class="hero datum-grid">
+      <svg class="contours" id="contours" viewBox="0 0 1200 520" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-50,420 C200,360 360,470 560,400 S920,300 1260,380" />
+        <path d="M-50,360 C220,300 380,410 600,330 S980,250 1260,310" />
+        <path d="M-50,300 C240,250 400,350 620,270 S1000,200 1260,250" />
+        <path d="M-50,240 C260,200 420,290 640,210 S1020,150 1260,190" />
+        <path d="M-50,180 C280,150 440,230 660,150 S1040,110 1260,140" />
+        <path d="M-50,120 C300,100 460,170 680,100 S1060,70 1260,95" />
+      </svg>
+      <div class="wrap hero-inner">
+        <div class="eyebrow mono">ODYSSEY · FULFILLMENT &amp; DEMAND VISUALIZATION</div>
+        <h1>See the <em>shape</em> of demand before it moves.</h1>
+        <p class="lede">Odyssey plots fulfillment flow and demand as a living
+          surface — network state rendered as contour, not guesswork.</p>
+        <a class="cta" href="#">Read the instrument <span class="mono" style="font-size:0.6875rem">→</span></a>
+      </div>
+      <div class="readout">
+        <div class="k">Demand · 14d forecast</div>
+        <div class="v">+12.4%</div>
+        <hr class="rule" />
+        <div class="k">Network state</div>
+        <div class="v" style="font-size:1.125rem; color:var(--ink)">NOMINAL</div>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="margin-strip footer-strip">
+        <span class="mono mono-ghost">CONTOURS PLOT IN ON VIEW · FRAMER MOTION useScroll IN PRODUCTION</span>
+        <span class="mono mono-ghost">GLASS READOUT = THE ONE SANCTIONED ACCENT</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section>
+      <div class="note">
+        <strong style="color:var(--ink)">Reading this file:</strong> a static,
+        standalone preview to react to — not the Next.js build. In production
+        this hero is a <span class="mono mono-xs" style="color:var(--ink)">'use client'</span>
+        island animated with Framer Motion
+        (<span class="mono mono-xs" style="color:var(--ink)">useScroll</span>/<span class="mono mono-xs" style="color:var(--ink)">useTransform</span>),
+        lazy-loaded via <span class="mono mono-xs" style="color:var(--ink)">next/dynamic</span>;
+        here it's plain CSS + an IntersectionObserver standing in. Hairlines are
+        0.5px (one device pixel on this Retina display). Tell me what to push:
+        grid density, hue intensity, type scale, contour treatment, or restraint.
+      </div>
+    </section>
+  </div>
+
+  <footer class="wrap" style="padding:2rem 0 4rem">
+    <hr class="rule" style="margin-bottom:1rem" />
+    <div class="margin-strip footer-strip" style="border-top:0">
+      <span class="mono mono-ghost">OCTAVIUS LOGISTICS · INSTRUMENTS FOR THE INVISIBLE</span>
+      <span class="mono mono-ghost">END OF DATUM · OCT·001</span>
+    </div>
+  </footer>
+
+  <script>
+    // Plot contours in when the hero enters view.
+    // Production: Framer Motion useScroll/useTransform drives stroke-dashoffset
+    // inside a 'use client' island. This IntersectionObserver is the mock stand-in.
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const svg = document.getElementById('contours');
+    if (svg && !reduce) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { svg.classList.add('plotted'); io.disconnect(); } });
+      }, { threshold: 0.3 });
+      io.observe(svg);
+    } else if (svg) {
+      svg.classList.add('plotted');
+    }
+  </script>
+</body>
+</html>
