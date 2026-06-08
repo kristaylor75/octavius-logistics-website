@@ -78,15 +78,21 @@ const DEMOS: Record<string, ComponentType> = {
  */
 export function ProductDemo({ slug }: { slug: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  // If IntersectionObserver is unavailable (incl. SSR), show the demo eagerly.
-  const [near, setNear] = useState(
-    () => typeof IntersectionObserver === "undefined",
-  );
+  // Start false on BOTH server and first client render so the SSR'd skeleton and
+  // the first hydration render produce identical DOM (no #418 hydration
+  // mismatch). The effect below mounts the demo once it scrolls near.
+  const [near, setNear] = useState(false);
 
   useEffect(() => {
     if (near) return;
     const el = ref.current;
     if (!el) return;
+    // No IntersectionObserver support: mount eagerly (next frame, so the
+    // setState isn't called directly inside the effect body).
+    if (typeof IntersectionObserver === "undefined") {
+      const id = requestAnimationFrame(() => setNear(true));
+      return () => cancelAnimationFrame(id);
+    }
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
