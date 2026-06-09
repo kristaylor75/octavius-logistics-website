@@ -1,6 +1,8 @@
 import { Color, Vector3 } from "three";
 import { converter, formatHex, type Oklch } from "culori";
 
+const toSRGB = converter("rgb");
+
 /**
  * SINGLE SOURCE OF TRUTH for scene color.
  *
@@ -52,6 +54,17 @@ export const gridLine = linVec(DEEP_OKLCH.grid);
 
 /** Datum-grid persistence at the surface — mirrors --deep-grid-fade. */
 export const DEEP_GRID_FADE = 0.5;
+
+/**
+ * Marine-snow particulate colour — pale, very low chroma, faintly cool.
+ * Emitted in *sRGB* (not linear): the points are a faint alpha-blended overlay,
+ * so they composite correctly in the canvas's sRGB framebuffer (the point shader
+ * outputs this value directly).
+ */
+export const particleColor = (() => {
+  const c = toSRGB(ok(0.86, 0.012, 240));
+  return new Vector3(clamp01(c.r), clamp01(c.g), clamp01(c.b));
+})();
 
 /** Floor as an sRGB hex, for scene fog color (forward-prep). */
 export const floorHex = formatHex(DEEP_OKLCH.floor);
