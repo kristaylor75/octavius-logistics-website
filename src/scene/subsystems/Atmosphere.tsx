@@ -28,10 +28,10 @@ export type CausticParams = {
 };
 
 export const CAUSTIC_DEFAULTS: CausticParams = {
-  intensity: 0.05,
-  scale: 3.0,
-  speed: 0.03,
-  depthFalloff: 1.6,
+  intensity: 0.1,
+  scale: 0.6,
+  speed: 0.04,
+  depthFalloff: 1.0,
 };
 
 export const causticParams: CausticParams = { ...CAUSTIC_DEFAULTS };
@@ -41,7 +41,9 @@ export const causticParams: CausticParams = { ...CAUSTIC_DEFAULTS };
 // caustics can never read as a saturated gradient. Kept local to this file.
 const _toLinear = converter("lrgb");
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
-const CAUSTIC_TINT_OKLCH: Oklch = { mode: "oklch", l: 0.92, c: 0.012, h: 245 };
+// Tuned blue hue (245°), toned per §3: low chroma so it reads as faint cool
+// light, not a saturated blue glow. (User-picked #3880b7 was oklch ~0.58/0.111.)
+const CAUSTIC_TINT_OKLCH: Oklch = { mode: "oklch", l: 0.72, c: 0.04, h: 245 }; // #90a8bd
 
 /** Default tint as an sRGB hex, for the dev colour picker's initial value. */
 export const CAUSTIC_TINT_HEX = formatHex(CAUSTIC_TINT_OKLCH) ?? "#e9eef2";

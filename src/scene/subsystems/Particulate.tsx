@@ -36,24 +36,24 @@ export type ParticleParams = {
 };
 
 export const DEFAULTS: ParticleParams = {
-  size: 2.4,
-  opacity: 0.14,
-  driftSpeed: 0.18,
-  fogFade: 10,
-  flowScale: 0.18,
-  flowSpeed: 0.08,
-  flowAmp: 1.2,
-  pointerInfluence: 0.05,
-  pointerRadius: 0.35,
-  scrollInfluence: 0.4,
+  size: 2.8,
+  opacity: 0.23,
+  driftSpeed: 0.26,
+  fogFade: 11,
+  flowScale: 0.41,
+  flowSpeed: 0.13,
+  flowAmp: 0.45,
+  pointerInfluence: 0.19,
+  pointerRadius: 0.63,
+  scrollInfluence: 0.7,
 };
 
 export const particleParams: ParticleParams = { ...DEFAULTS };
 
 export function tierToCount(tier: Tier): number {
-  if (tier === "mid") return 700;
+  if (tier === "mid") return 380; // ~proportional to the tuned high count
   if (tier === "low") return 0; // never mounted (no canvas)
-  return 2400; // high
+  return 1300; // high (tuned)
 }
 
 // Volume (half-extents) in front of the default r3f camera (z=5, looking -z).

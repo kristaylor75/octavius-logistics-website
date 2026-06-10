@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { Leva, useControls } from "leva";
 import { DEFAULTS, particleParams } from "./Particulate";
 
@@ -11,6 +12,12 @@ import { DEFAULTS, particleParams } from "./Particulate";
  * of the production bundle. Continuous params are written straight into the
  * mutable `particleParams` (read on the render hot path); `count` rebuilds the
  * geometry, so it goes through React state via `setCount`.
+ *
+ * The <Leva/> panel is PORTALED to document.body: this component mounts inside
+ * DeepCanvas, which lives in DeepProvider's `fixed inset-0` wrapper (z-index
+ * -20, pointer-events:none). Rendered inline the panel would be behind the page
+ * and non-interactive; the portal lifts it to the top level. The single panel
+ * shows every registered folder (Particulate + Caustics) from leva's store.
  */
 export default function ParticulateControls({
   count,
@@ -119,5 +126,5 @@ export default function ParticulateControls({
     },
   });
 
-  return <Leva collapsed />;
+  return createPortal(<Leva collapsed />, document.body);
 }
