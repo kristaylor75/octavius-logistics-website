@@ -25,6 +25,17 @@ const ParticulateControls = DEV
       { ssr: false },
     )
   : null;
+// Caustics dev panel — a leva DOM panel can't live inside the <Canvas>, so it's
+// mounted here alongside ParticulateControls (same dev-gated, non-fatal pattern).
+const AtmosphereControls = DEV
+  ? dynamic(
+      () =>
+        import("./subsystems/AtmosphereControls").catch(() => ({
+          default: () => null,
+        })),
+      { ssr: false },
+    )
+  : null;
 
 /**
  * Hot-path frame work: smooth a local pointer value toward the store target, and
@@ -88,6 +99,7 @@ export default function DeepCanvas() {
       {ParticulateControls && (
         <ParticulateControls count={count} setCount={setCount} />
       )}
+      {AtmosphereControls && <AtmosphereControls />}
     </>
   );
 }

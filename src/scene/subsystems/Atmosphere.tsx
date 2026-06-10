@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { ScreenQuad } from "@react-three/drei";
 import { ShaderMaterial, Vector2, Vector3, type IUniform } from "three";
+import { converter, formatHex, type Oklch } from "culori";
 import { useDeepStore } from "../store";
 import {
   deepSurface,
@@ -13,6 +14,49 @@ import {
   hueSubtle,
   DEEP_GRID_FADE,
 } from "../palette";
+
+/**
+ * Caustics (Phase 6) — faint surface light, an ADDITIVE term in the Atmosphere
+ * shader (no extra pass). Continuous params live in a mutable singleton read on
+ * the frame hot path; the DEV leva panel (AtmosphereControls) writes into it.
+ */
+export type CausticParams = {
+  intensity: number;
+  scale: number;
+  speed: number;
+  depthFalloff: number;
+};
+
+export const CAUSTIC_DEFAULTS: CausticParams = {
+  intensity: 0.05,
+  scale: 3.0,
+  speed: 0.03,
+  depthFalloff: 1.6,
+};
+
+export const causticParams: CausticParams = { ...CAUSTIC_DEFAULTS };
+
+// Colour management mirrors palette.ts: OKLCH → linear-sRGB for the shader (it
+// encodes linear→sRGB at the final line). The tint is a faint cool-white so the
+// caustics can never read as a saturated gradient. Kept local to this file.
+const _toLinear = converter("lrgb");
+const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
+const CAUSTIC_TINT_OKLCH: Oklch = { mode: "oklch", l: 0.92, c: 0.012, h: 245 };
+
+/** Default tint as an sRGB hex, for the dev colour picker's initial value. */
+export const CAUSTIC_TINT_HEX = formatHex(CAUSTIC_TINT_OKLCH) ?? "#e9eef2";
+
+/** Live tint, in LINEAR space (mutable so the dev panel can retint). */
+export const causticTint = (() => {
+  const { r, g, b } = _toLinear(CAUSTIC_TINT_OKLCH);
+  return new Vector3(clamp01(r), clamp01(g), clamp01(b));
+})();
+
+/** Set the live tint from an sRGB hex (from the dev colour picker). */
+export function setCausticTint(hex: string) {
+  const c = _toLinear(hex);
+  if (c) causticTint.set(clamp01(c.r), clamp01(c.g), clamp01(c.b));
+}
 
 /**
  * Atmosphere — the animated depth field, drawn as the canvas background.
@@ -49,6 +93,11 @@ const FRAG = /* glsl */ `
   uniform vec3  uGrid;
   uniform vec3  uAccentColor[4];
   uniform vec2  uAccentPos[4];
+  uniform float uCausticIntensity;
+  uniform float uCausticScale;
+  uniform float uCausticSpeed;
+  uniform float uCausticFalloff;
+  uniform vec3  uCausticTint;
 
   // --- Ashima simplex noise (2D) ---
   vec3 mod289(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -126,6 +175,25 @@ const FRAG = /* glsl */ `
       col = mix(col, uAccentColor[i], glow * band * 0.11);
     }
 
+    // Caustics: faint light cast from the surface. Two scrolling RIDGED simplex
+    // layers (1 - |noise|) multiplied → bright filaments / dark cells, like the
+    // network a water surface throws downward. Added in linear space, weighted
+    // toward the upper screen (light from above) and gated to ~0 by the floor.
+    vec2 cuv = vUv * vec2(aspect, 1.0) * uCausticScale;
+    float ct = uTime * uCausticSpeed;
+    float cn1 = snoise(cuv + vec2(ct, ct * 0.6));
+    float cn2 = snoise(cuv * 1.7 + vec2(-ct * 0.8, ct * 0.5));
+    float caustic = (1.0 - abs(cn1)) * (1.0 - abs(cn2));
+    caustic = pow(caustic, 3.0); // tighten into thin filaments
+    float upper = smoothstep(0.0, 0.95, vUv.y);
+    upper *= upper; // weight toward the surface (top of screen)
+    // Depth gate: a leading linear (1-depth) factor makes it EXACTLY 0 at the
+    // floor, while pow's base is kept strictly positive so pow(0.0, y) is never
+    // evaluated (SwiftShader/some drivers return NaN there, which would leak).
+    float lin = clamp(1.0 - uDepth, 0.0, 1.0);
+    float cDepth = lin * pow(max(lin, 1e-3), max(uCausticFalloff - 1.0, 0.0));
+    col += uCausticTint * (caustic * upper * cDepth * uCausticIntensity);
+
     gl_FragColor = vec4(linearToSRGB(clamp(col, 0.0, 1.0)), 1.0);
   }
 `;
@@ -142,6 +210,11 @@ type AtmoUniforms = {
   uGrid: IUniform<Vector3>;
   uAccentColor: IUniform<Vector3[]>;
   uAccentPos: IUniform<Vector2[]>;
+  uCausticIntensity: IUniform<number>;
+  uCausticScale: IUniform<number>;
+  uCausticSpeed: IUniform<number>;
+  uCausticFalloff: IUniform<number>;
+  uCausticTint: IUniform<Vector3>;
 };
 
 function makeUniforms(): AtmoUniforms {
@@ -172,6 +245,11 @@ function makeUniforms(): AtmoUniforms {
         new Vector2(0.5, 0.97),
       ],
     },
+    uCausticIntensity: { value: CAUSTIC_DEFAULTS.intensity },
+    uCausticScale: { value: CAUSTIC_DEFAULTS.scale },
+    uCausticSpeed: { value: CAUSTIC_DEFAULTS.speed },
+    uCausticFalloff: { value: CAUSTIC_DEFAULTS.depthFalloff },
+    uCausticTint: { value: causticTint.clone() },
   };
 }
 
@@ -183,10 +261,23 @@ export function Atmosphere() {
   const uniforms = (uniformsRef.current ??= makeUniforms());
 
   useFrame((state, delta) => {
-    uniforms.uDepth.value = useDeepStore.getState().depth;
-    uniforms.uTime.value += Math.min(delta, 0.05);
-    state.gl.getDrawingBufferSize(uniforms.uResolution.value);
-    uniforms.uPixelRatio.value = state.gl.getPixelRatio();
+    // r3f gives the material its OWN uniforms object (not the `uniforms` prop
+    // instance), so mutate THROUGH the material ref — otherwise none of these
+    // reach the GPU. (The prop above only seeds the initial values.)
+    const mat = matRef.current;
+    if (!mat) return;
+    const u = mat.uniforms as unknown as AtmoUniforms;
+
+    u.uDepth.value = useDeepStore.getState().depth;
+    u.uTime.value += Math.min(delta, 0.05);
+    state.gl.getDrawingBufferSize(u.uResolution.value);
+    u.uPixelRatio.value = state.gl.getPixelRatio();
+
+    u.uCausticIntensity.value = causticParams.intensity;
+    u.uCausticScale.value = causticParams.scale;
+    u.uCausticSpeed.value = causticParams.speed;
+    u.uCausticFalloff.value = causticParams.depthFalloff;
+    u.uCausticTint.value.copy(causticTint);
   });
 
   return (
