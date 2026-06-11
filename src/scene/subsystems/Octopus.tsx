@@ -76,6 +76,7 @@ const FRAG = /* glsl */ `
   varying vec2 vUv;
   uniform float uTime;
   uniform float uPresence;
+  uniform float uEyeAlpha;  // eye gate: home × (slow) depth fade, NOT presence
   uniform float uArmCurl;
   uniform float uRim;
   uniform vec3 uFillColor;
@@ -115,10 +116,13 @@ const FRAG = /* glsl */ `
     // Whole-creature drift: a slow sway + bob, so it hovers rather than sits.
     vec2 q = p - vec2(0.03 * sin(t * 0.33), 0.30 + 0.02 * sin(t * 0.5));
 
-    // Mantle — a soft, bulbous, slightly tall head.
+    // Mantle — an egg/teardrop head: a bulbous, slightly pointed crown tapering
+    // to a narrower neck where the arms attach (not a plain round ellipse).
     float breathe = 1.0 + 0.025 * sin(t * 0.5);
-    vec2 bp = q / (vec2(0.21, 0.30) * breathe);
-    float body = length(bp) - 1.0;
+    float ty = clamp((q.y / breathe + 0.30) / 0.60, 0.0, 1.0); // 0 neck .. 1 crown
+    float w = mix(0.115, 0.215, smoothstep(0.0, 0.55, ty))
+              - 0.03 * smoothstep(0.72, 1.0, ty);             // pinch the crown → egg
+    float body = length(vec2(q.x / (w * breathe), q.y / (0.30 * breathe))) - 1.0;
 
     // Eight arms emanating from the lower mantle, fanned across the underside.
     vec2 base = vec2(0.0, -0.16);
@@ -141,8 +145,18 @@ const FRAG = /* glsl */ `
     // Soft silhouette + dissolve before the plane edge.
     float m = smoothstep(0.05, -0.03, d);
     m *= 1.0 - smoothstep(0.86, 1.06, length(p));
-    // Fill: the interior is the most opaque; the soft edge tapers off.
-    float alpha = m * uPresence;
+    float bodyA = m * uPresence;          // faint body fill
+
+    // Electric-blue eyes on the sides of the lower mantle. Their alpha is gated
+    // by uEyeAlpha (home × slow depth fade) but NOT by the faint body presence —
+    // so they keep their glow as the body dims, and the colour is bright enough
+    // to catch the selective bloom (glowing eyes in the gloom).
+    float ed = min(length(q - vec2(-0.115, -0.02)),
+                   length(q - vec2( 0.115, -0.02)));
+    float eye = smoothstep(0.030 * breathe, 0.010, ed);
+    float eyeA = eye * uEyeAlpha;
+
+    float alpha = max(bodyA, eyeA);
     if (alpha < 0.003) discard;
 
     // Outline: the silhouette edge catches a touch more of the dim light from
@@ -150,6 +164,7 @@ const FRAG = /* glsl */ `
     // alpha edge, and only recolours, never adds opacity).
     float outline = 1.0 - smoothstep(0.0, 0.045, abs(d));
     vec3 col = mix(uFillColor, uFillColor * 1.7 + 0.012, outline * uRim);
+    col = mix(col, vec3(0.10, 0.45, 1.5), eye); // electric blue where the eyes are
     gl_FragColor = vec4(col, alpha);
   }
 `;
@@ -157,6 +172,7 @@ const FRAG = /* glsl */ `
 type OctoUniforms = {
   uTime: IUniform<number>;
   uPresence: IUniform<number>;
+  uEyeAlpha: IUniform<number>;
   uArmCurl: IUniform<number>;
   uRim: IUniform<number>;
   uFillColor: IUniform<Vector3>;
@@ -166,6 +182,7 @@ function makeUniforms(): OctoUniforms {
   return {
     uTime: { value: 0 },
     uPresence: { value: 0 },
+    uEyeAlpha: { value: 0 },
     uArmCurl: { value: 0 },
     uRim: { value: 0.5 },
     uFillColor: { value: octoFill.clone() },
@@ -202,6 +219,10 @@ export function Octopus() {
     const depth = store.depth;
     const depthFade = 1 - Math.min(1, Math.max(0, depth / DEPTH_FADE_END));
     u.uPresence.value = p.presence * home.current * depthFade;
+    // Eyes hold their glow as the body dims — gated by home + a slower fade (so
+    // they linger a beat into the fog), never by the faint body presence.
+    const eyeFade = 1 - Math.min(1, Math.max(0, depth / 0.6));
+    u.uEyeAlpha.value = home.current * eyeFade;
 
     // Arm-curl: a one-shot bell as scroll depth crosses the hero→thesis band.
     const bell = Math.exp(-(((depth - CURL_DEPTH) / CURL_WIDTH) ** 2));
