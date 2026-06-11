@@ -21,6 +21,7 @@ import {
   bloomParams,
   BLOOM_DEFAULTS,
 } from "./subsystems/Bioluminescence";
+import { Octopus } from "./subsystems/Octopus";
 import { floorHex } from "./palette";
 
 // DEV-only leva panel. The dynamic import sits in a dead branch in production
@@ -54,6 +55,15 @@ const BioluminescenceControls = DEV
   ? dynamic(
       () =>
         import("./subsystems/BioluminescenceControls").catch(() => ({
+          default: () => null,
+        })),
+      { ssr: false },
+    )
+  : null;
+const OctopusControls = DEV
+  ? dynamic(
+      () =>
+        import("./subsystems/OctopusControls").catch(() => ({
           default: () => null,
         })),
       { ssr: false },
@@ -157,6 +167,7 @@ export default function DeepCanvas() {
       >
         <fogExp2 attach="fog" args={[floorHex, 0.008]} />
         <Atmosphere />
+        <Octopus />
         <Particulate count={count} />
         <Bioluminescence />
         <DeepFrame />
@@ -173,6 +184,7 @@ export default function DeepCanvas() {
       )}
       {AtmosphereControls && <AtmosphereControls />}
       {BioluminescenceControls && <BioluminescenceControls />}
+      {OctopusControls && <OctopusControls />}
     </>
   );
 }
