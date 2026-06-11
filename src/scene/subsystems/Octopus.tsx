@@ -12,9 +12,9 @@ import { useDeepStore } from "../store";
  * performance; just a slow silhouette and ONE arm-curl as you cross the
  * hero→thesis depth band.
  *
- * Drawn procedurally (a polar mantle + 8 tapering arms) on ONE small plane deep
- * in the scene (renderOrder behind the particulate/glows), so cost is just the
- * plane's pixels. Output is LINEAR (the composer owns the sRGB encode) and dark
+ * Drawn procedurally as an SDF (a bulbous mantle smooth-unioned with 8 long,
+ * tapering, undulating tentacles) on ONE small plane deep in the scene
+ * (renderOrder behind the particulate/glows), so cost is just the plane's pixels. Output is LINEAR (the composer owns the sRGB encode) and dark
  * enough to sit below the bloom threshold, so it never blooms. Gated to the home
  * hero via the presence of `hero-*` anchors — absent on product/thesis/contact,
  * with no page-file changes. Reduced-motion/low never mount the canvas.
@@ -65,36 +65,73 @@ const FRAG = /* glsl */ `
   uniform vec3 uColor;
   uniform vec3 uRimColor;
 
+  // smooth-union of two SDFs (organic blending — arms flow out of the mantle)
+  float smin(float a, float b, float k){
+    float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+    return mix(b, a, h) - k * h * (1.0 - h);
+  }
+
+  // hash for per-arm variation (asymmetry → natural, not mechanical)
+  float h11(float n){ return fract(sin(n * 91.37) * 4372.13); }
+
+  // One long, tapering, undulating, curling arm. Returns an SDF (neg inside).
+  // The centreline runs from the base along ang, with a travelling-wave lateral
+  // offset (amplitude growing to the tip) plus an inward curl; thickness tapers
+  // to a point. Distance is approximated against the centreline point at the
+  // clamped along-arm coordinate (rounded ends) — plenty for a soft silhouette.
+  float armSDF(vec2 p, vec2 base, float ang, float len, float baseThick,
+               float phase, float curl, float t){
+    vec2 dir = vec2(cos(ang), sin(ang));
+    vec2 nrm = vec2(-dir.y, dir.x);
+    vec2 rel = p - base;
+    float x = clamp(dot(rel, dir), 0.0, len);
+    float u = x / len;                                   // 0 base .. 1 tip
+    float wave = 0.13 * u * sin(x * 4.2 - t * 0.9 + phase); // travels down the arm
+    float off = wave + curl * u * u;                    // + tip curl
+    vec2 c = base + dir * x + nrm * off;
+    float thick = baseThick * pow(1.0 - u, 0.8) + 0.004; // taper to a point
+    return length(p - c) - thick;
+  }
+
   void main() {
-    vec2 p = (vUv - 0.5) * 2.0;          // [-1, 1] over the plane
-    vec2 q = p - vec2(0.0, 0.18);        // body sits a little above centre
-    float r = length(q);
-    float breathe = 1.0 + 0.03 * sin(uTime * 0.5);
+    vec2 p = (vUv - 0.5) * 2.0;                 // [-1, 1] over the plane
+    float t = uTime;
 
-    // Mantle — a soft, slightly tall ellipse.
-    vec2 bp = q / (vec2(0.34, 0.44) * breathe);
-    float body = 1.0 - smoothstep(0.82, 1.04, length(bp));
+    // Whole-creature drift: a slow sway + bob, so it hovers rather than sits.
+    vec2 q = p - vec2(0.03 * sin(t * 0.33), 0.30 + 0.02 * sin(t * 0.5));
 
-    // Eight tapering arms fanning below, curling at the tips.
-    float ang = atan(q.x, -q.y);         // 0 = straight down
-    float tw = uArmCurl * smoothstep(0.30, 1.0, r) + 0.05 * sin(uTime * 0.3);
-    float lobe = pow(abs(cos(4.0 * (ang + tw))), 0.8); // 8 lobes
-    float down = clamp(-q.y / max(r, 1e-3), -1.0, 1.0); // 1 = pointing down
-    float downMask = smoothstep(-0.5, 0.45, down);
-    float reach = 0.30 + 0.52 * lobe * downMask;
-    float arms = 1.0 - smoothstep(reach - 0.09, reach + 0.05, r);
-    arms *= 1.0 - smoothstep(0.55, 1.0, r); // tips dissolve into the fog
+    // Mantle — a soft, bulbous, slightly tall head.
+    float breathe = 1.0 + 0.025 * sin(t * 0.5);
+    vec2 bp = q / (vec2(0.21, 0.30) * breathe);
+    float body = length(bp) - 1.0;
 
-    float m = max(body, arms * 0.92);
-    m *= 1.0 - smoothstep(0.88, 1.06, r);   // dissolve before the plane edge
-    m = clamp(m, 0.0, 1.0);
+    // Eight arms emanating from the lower mantle, fanned across the underside.
+    vec2 base = vec2(0.0, -0.16);
+    float arms = 1e3;
+    for (int i = 0; i < 8; i++){
+      float fi = float(i);
+      float k = (fi / 7.0) * 2.0 - 1.0;          // -1 .. 1 across the fan
+      float ang = -1.5708 + k * 1.42;            // straight-down ± ~81°
+      float len = 0.92 * (0.80 + 0.34 * h11(fi));
+      float baseThick = 0.075 * (0.8 + 0.45 * h11(fi + 13.0));
+      float phase = fi * 0.9 + 6.28 * h11(fi + 31.0);
+      // curl inward (toward the body's down-axis), varied per arm
+      float curl = uArmCurl * (-k) * (0.5 + 0.5 * h11(fi + 7.0)) * 0.6;
+      vec2 abase = base + vec2(k * 0.11, 0.0);
+      arms = min(arms, armSDF(q, abase, ang, len, baseThick, phase, curl, t));
+    }
 
+    float d = smin(body, arms, 0.11);
+
+    // Soft silhouette + dissolve before the plane edge.
+    float m = smoothstep(0.05, -0.03, d);
+    m *= 1.0 - smoothstep(0.86, 1.06, length(p));
     float alpha = m * uPresence;
-    if (alpha < 0.002) discard;
+    if (alpha < 0.003) discard;
 
-    // Faint cool rim at the soft edge so the form is just legible.
-    float edge = clamp(m * (1.0 - m) * 4.0, 0.0, 1.0);
-    vec3 col = mix(uColor, uRimColor, edge * uRim);
+    // Faint cool rim where the body catches the dim light from above.
+    float rim = 1.0 - smoothstep(0.0, 0.05, abs(d));
+    vec3 col = mix(uColor, uRimColor, rim * uRim);
     gl_FragColor = vec4(col, alpha);
   }
 `;
