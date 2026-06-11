@@ -1,36 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useDeepStore, type Tier } from "./store";
+import { useDeepStore } from "./store";
+import { computeTier } from "./tier";
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
-
-/** Minimal typing for the experimental Network Information API (no `any`). */
-interface NavigatorWithConnection extends Navigator {
-  connection?: { saveData?: boolean };
-}
-
-/** Best-effort check that a WebGL context can be created at all. */
-function hasWebGL(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    return Boolean(
-      canvas.getContext("webgl2") ||
-        canvas.getContext("webgl") ||
-        canvas.getContext("experimental-webgl"),
-    );
-  } catch {
-    return false;
-  }
-}
-
-function computeTier(reducedMotion: boolean): Tier {
-  const nav = navigator as NavigatorWithConnection;
-  const saveData = nav.connection?.saveData ?? false;
-  const cores = navigator.hardwareConcurrency ?? 8;
-  if (reducedMotion || saveData || cores <= 4 || !hasWebGL()) return "low";
-  return "high";
-}
 
 /**
  * Attaches the scroll → depth spine: ONE scroll listener, ONE pointermove
@@ -83,7 +57,7 @@ export function useDeepDrivers(): void {
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const applyMotion = () => {
       setReducedMotion(motionQuery.matches);
-      setTier(computeTier(motionQuery.matches));
+      setTier(computeTier());
     };
     applyMotion();
     readDepth();

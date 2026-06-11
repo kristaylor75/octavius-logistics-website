@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -10,12 +11,22 @@ import {
   type RefObject,
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { AdaptiveDpr, PerformanceMonitor, Preload } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import type { BloomEffect } from "postprocessing";
 import { FogExp2 } from "three";
-import { useDeepStore } from "./store";
-import { Atmosphere } from "./subsystems/Atmosphere";
-import { Particulate, tierToCount } from "./subsystems/Particulate";
+import { useDeepStore, type Tier } from "./store";
+import {
+  Atmosphere,
+  causticParams,
+  CAUSTIC_DEFAULTS,
+} from "./subsystems/Atmosphere";
+import {
+  Particulate,
+  tierToCount,
+  particleParams,
+  DEFAULTS as PARTICLE_DEFAULTS,
+} from "./subsystems/Particulate";
 import {
   Bioluminescence,
   bloomParams,
@@ -23,6 +34,13 @@ import {
 } from "./subsystems/Bioluminescence";
 import { Octopus } from "./subsystems/Octopus";
 import { floorHex } from "./palette";
+
+// Adaptive quality levels (Phase 11). The PerformanceMonitor steps DOWN the
+// level on sustained FPS dips and UP on headroom, applying reductions in the
+// brief's order: particulate count → caustics → bloom → drift. (AdaptiveDpr
+// scales the pixel ratio in parallel — the largest real GPU saving.)
+const MAX_LEVEL = 4;
+const COUNT_MUL = [1, 0.6, 0.55, 0.5, 0.4];
 
 // DEV-only leva panel. The dynamic import sits in a dead branch in production
 // (NODE_ENV is statically "production"), so leva is tree-shaken out entirely.
@@ -124,12 +142,42 @@ function VisibilityGate() {
  * side only (ssr:false) via DeepProvider, and only mounted for capable,
  * non-reduced-motion users.
  */
-export default function DeepCanvas() {
-  // Initial particle count from the capability tier (high/mid; low never mounts).
-  const [count, setCount] = useState(() =>
-    tierToCount(useDeepStore.getState().tier),
-  );
+export default function DeepCanvas({ tier }: { tier: Tier }) {
   const bloomRef = useRef<BloomEffect>(null);
+
+  // Quality level (mid starts one notch down for headroom). levelRef is the
+  // source of truth for the guard's event callbacks; `level` state re-derives
+  // the particle count. The dev count slider can override (countOverride).
+  const initialLevel = tier === "mid" ? 1 : 0;
+  const levelRef = useRef(initialLevel);
+  const [level, setLevel] = useState(initialLevel);
+  const [countOverride, setCountOverride] = useState<number | null>(null);
+  const count =
+    countOverride ?? Math.round(tierToCount(tier) * COUNT_MUL[level]);
+
+  // Apply the ordered caustics/bloom/drift drops for a level (count is derived).
+  // Mutates the same singletons the dev panels do; in production the guard owns
+  // them. Run from the step callbacks (event handlers), never an effect.
+  const applyLevel = useCallback((l: number) => {
+    causticParams.intensity = l >= 2 ? 0 : CAUSTIC_DEFAULTS.intensity;
+    bloomParams.intensity = l >= 3 ? 0 : BLOOM_DEFAULTS.intensity;
+    const driftMul = l >= 4 ? 0.5 : 1;
+    particleParams.driftSpeed = PARTICLE_DEFAULTS.driftSpeed * driftMul;
+    particleParams.flowSpeed = PARTICLE_DEFAULTS.flowSpeed * driftMul;
+  }, []);
+  const setQuality = useCallback(
+    (next: number) => {
+      const nl = Math.max(0, Math.min(MAX_LEVEL, next));
+      if (nl === levelRef.current) return;
+      levelRef.current = nl;
+      applyLevel(nl);
+      setLevel(nl);
+    },
+    [applyLevel],
+  );
+  const stepDown = useCallback(() => setQuality(levelRef.current + 1), [setQuality]);
+  const stepUp = useCallback(() => setQuality(levelRef.current - 1), [setQuality]);
+  const stepFloor = useCallback(() => setQuality(MAX_LEVEL), [setQuality]);
 
   // Memoized so its element identity is STABLE across DeepCanvas re-renders
   // (e.g. the `count` slider): the EffectComposer must not see new children and
@@ -161,9 +209,16 @@ export default function DeepCanvas() {
       <Canvas
         flat
         frameloop="always"
-        dpr={[1, 2]}
+        dpr={tier === "mid" ? [1, 1.5] : [1, 2]}
         gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         style={{ background: "transparent" }}
+        // The canvas is decorative ambient water: hide it from assistive tech
+        // and the tab order entirely (the wrapper is also aria-hidden /
+        // pointer-events:none — this is belt-and-suspenders).
+        onCreated={({ gl }) => {
+          gl.domElement.setAttribute("aria-hidden", "true");
+          gl.domElement.setAttribute("tabindex", "-1");
+        }}
       >
         <fogExp2 attach="fog" args={[floorHex, 0.008]} />
         <Atmosphere />
@@ -173,6 +228,19 @@ export default function DeepCanvas() {
         <DeepFrame />
         <VisibilityGate />
         <BloomController bloomRef={bloomRef} />
+        {/* Adaptive quality guard: AdaptiveDpr scales pixel ratio first; the
+            PerformanceMonitor steps the quality level down on sustained dips and
+            back up on headroom (with a flip-flop cap → lock to floor). */}
+        <PerformanceMonitor
+          onDecline={stepDown}
+          onIncline={stepUp}
+          flipflops={4}
+          onFallback={stepFloor}
+        >
+          <AdaptiveDpr pixelated={false} />
+        </PerformanceMonitor>
+        {/* Compile shaders / upload buffers before the first visible frame. */}
+        <Preload all />
         {/* Gentle SELECTIVE bloom: only the bright bioluminescence exceeds the
             luminance threshold; the dark field/particulate/caustics stay crisp.
             intensity/threshold are mutated live (BloomController); radius is
@@ -180,7 +248,7 @@ export default function DeepCanvas() {
         {postfx}
       </Canvas>
       {ParticulateControls && (
-        <ParticulateControls count={count} setCount={setCount} />
+        <ParticulateControls count={count} setCount={setCountOverride} />
       )}
       {AtmosphereControls && <AtmosphereControls />}
       {BioluminescenceControls && <BioluminescenceControls />}

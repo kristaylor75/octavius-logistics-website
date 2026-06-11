@@ -181,20 +181,24 @@ const FRAG = /* glsl */ `
     // layers (1 - |noise|) multiplied → bright filaments / dark cells, like the
     // network a water surface throws downward. Added in linear space, weighted
     // toward the upper screen (light from above) and gated to ~0 by the floor.
-    vec2 cuv = vUv * vec2(aspect, 1.0) * uCausticScale;
-    float ct = uTime * uCausticSpeed;
-    float cn1 = snoise(cuv + vec2(ct, ct * 0.6));
-    float cn2 = snoise(cuv * 1.7 + vec2(-ct * 0.8, ct * 0.5));
-    float caustic = (1.0 - abs(cn1)) * (1.0 - abs(cn2));
-    caustic = pow(caustic, 3.0); // tighten into thin filaments
-    float upper = smoothstep(0.0, 0.95, vUv.y);
-    upper *= upper; // weight toward the surface (top of screen)
-    // Depth gate: a leading linear (1-depth) factor makes it EXACTLY 0 at the
-    // floor, while pow's base is kept strictly positive so pow(0.0, y) is never
-    // evaluated (SwiftShader/some drivers return NaN there, which would leak).
-    float lin = clamp(1.0 - uDepth, 0.0, 1.0);
-    float cDepth = lin * pow(max(lin, 1e-3), max(uCausticFalloff - 1.0, 0.0));
-    col += uCausticTint * (caustic * upper * cDepth * uCausticIntensity);
+    // Skipped entirely when intensity is 0 (the adaptive guard drops it under
+    // load) — a uniform branch is coherent/cheap and saves the two snoise evals.
+    if (uCausticIntensity > 0.0001) {
+      vec2 cuv = vUv * vec2(aspect, 1.0) * uCausticScale;
+      float ct = uTime * uCausticSpeed;
+      float cn1 = snoise(cuv + vec2(ct, ct * 0.6));
+      float cn2 = snoise(cuv * 1.7 + vec2(-ct * 0.8, ct * 0.5));
+      float caustic = (1.0 - abs(cn1)) * (1.0 - abs(cn2));
+      caustic = pow(caustic, 3.0); // tighten into thin filaments
+      float upper = smoothstep(0.0, 0.95, vUv.y);
+      upper *= upper; // weight toward the surface (top of screen)
+      // Depth gate: a leading linear (1-depth) factor makes it EXACTLY 0 at the
+      // floor, while pow's base is kept strictly positive so pow(0.0, y) is never
+      // evaluated (SwiftShader/some drivers return NaN there, which would leak).
+      float lin = clamp(1.0 - uDepth, 0.0, 1.0);
+      float cDepth = lin * pow(max(lin, 1e-3), max(uCausticFalloff - 1.0, 0.0));
+      col += uCausticTint * (caustic * upper * cDepth * uCausticIntensity);
+    }
 
     // Output LINEAR — the EffectComposer (DeepCanvas) owns the final sRGB encode.
     gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useDeepDrivers } from "./useDeepDrivers";
 import { useDeepStore } from "./store";
+import { computeTier } from "./tier";
 import { StaticFallback } from "./StaticFallback";
 
 // The WebGL canvas loads client-side only (ssr:false) — allowed here because
@@ -13,43 +14,6 @@ const DeepCanvas = dynamic(() => import("./DeepCanvas"), {
   ssr: false,
   loading: () => null,
 });
-
-/** Best-effort check that a WebGL context can be created at all. */
-function hasWebGL(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    return Boolean(
-      canvas.getContext("webgl2") ||
-        canvas.getContext("webgl") ||
-        canvas.getContext("experimental-webgl"),
-    );
-  } catch {
-    return false;
-  }
-}
-
-/** Minimal typing for the experimental Network Information API (no `any`). */
-interface NavigatorWithConnection extends Navigator {
-  connection?: { saveData?: boolean };
-}
-
-/**
- * Synchronous, SSR-guarded gate. Mirrors the Phase-1 tier heuristic locally so
- * the canvas-mount decision is available on the very first client render (no
- * flash, no wasted chunk fetch). The store's reducedMotion/tier — written by
- * useDeepDrivers — remain the shared source of truth for later phases; this just
- * decides whether to mount WebGL at all.
- */
-function computeShouldAnimate(): boolean {
-  if (typeof window === "undefined") return false;
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduced) return false;
-  const nav = navigator as NavigatorWithConnection;
-  const saveData = nav.connection?.saveData ?? false;
-  const cores = navigator.hardwareConcurrency ?? 8;
-  const low = saveData || cores <= 4 || !hasWebGL();
-  return !low;
-}
 
 /**
  * Dev-only spine readout. Gated on NODE_ENV so it is dead-code-eliminated from
@@ -92,18 +56,28 @@ function DepthReadout() {
  */
 export function DeepProvider() {
   useDeepDrivers();
-  // Synchronous capability decision (per spec): available on the first client
-  // render, false during SSR.
-  const [shouldAnimate] = useState<boolean>(computeShouldAnimate);
-  // Defer the actual mount to after hydration so SSR and the first client render
-  // produce identical (canvas-free) DOM — no hydration mismatch. The canvas is
-  // empty/transparent, so this one-frame delay is invisible, and the chunk is
-  // still never requested unless shouldAnimate is true.
-  const [hydrated, setHydrated] = useState(false);
+  // Capability tier, decided once synchronously (SSR-safe → "low"): available on
+  // the very first client render so the mount decision never flashes and the
+  // WebGL chunk is never requested for low-tier / reduced-motion / save-data.
+  const [tier] = useState(computeTier);
+  const shouldAnimate = tier !== "low";
+
+  // Lazy-init AFTER first content paint: requestIdleCallback yields to FCP/LCP
+  // and layout before any scene JS runs (timeout caps the wait; setTimeout
+  // fallback for Safari). SSR and the first client render are identical
+  // (canvas-free) DOM — no hydration mismatch, no CLS (the canvas is fixed,
+  // z-index -20, reserving no layout).
+  const [ready, setReady] = useState(false);
   useEffect(() => {
-    const id = requestAnimationFrame(() => setHydrated(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
+    if (!shouldAnimate) return;
+    const ric = window.requestIdleCallback;
+    if (ric) {
+      const id = ric(() => setReady(true), { timeout: 1000 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(() => setReady(true), 200);
+    return () => clearTimeout(t);
+  }, [shouldAnimate]);
 
   return (
     <>
@@ -113,7 +87,7 @@ export function DeepProvider() {
         style={{ zIndex: -20 }}
       >
         <StaticFallback />
-        {hydrated && shouldAnimate && <DeepCanvas />}
+        {ready && shouldAnimate && <DeepCanvas tier={tier} />}
       </div>
       {process.env.NODE_ENV !== "production" && <DepthReadout />}
     </>
