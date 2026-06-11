@@ -37,9 +37,9 @@ export type BioParams = {
 };
 
 export const BIO_DEFAULTS: BioParams = {
-  glowRadius: 90,
-  intensity: 0.42, // signal, not orb (Phase 8)
-  pulsePeriod: 5.5, // slower, calmer
+  glowRadius: 108,
+  intensity: 0.74,
+  pulsePeriod: 5.5,
   pulseDepth: 0.22,
 };
 

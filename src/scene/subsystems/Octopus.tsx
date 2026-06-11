@@ -30,11 +30,11 @@ export type OctopusParams = {
 };
 
 export const OCTO_DEFAULTS: OctopusParams = {
-  presence: 0.16,
+  presence: 0.15,
   parallaxDepth: 0.35,
-  posX: 2.5,
-  posY: 1.0,
-  armCurlStrength: 0.5,
+  posX: 6.9,
+  posY: 1.8,
+  armCurlStrength: 0,
 };
 
 export const octopusParams: OctopusParams = { ...OCTO_DEFAULTS };
@@ -44,7 +44,7 @@ export const octopusParams: OctopusParams = { ...OCTO_DEFAULTS };
 // silhouette is filled with this; the edge gets a fainter, brighter outline.
 const _toLinear = converter("lrgb");
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
-export const OCTO_FILL_HEX = "#35586a";
+export const OCTO_FILL_HEX = "#893b1a";
 export const octoFill = (() => {
   const c = _toLinear(OCTO_FILL_HEX);
   return new Vector3(clamp01(c?.r ?? 0), clamp01(c?.g ?? 0), clamp01(c?.b ?? 0));
