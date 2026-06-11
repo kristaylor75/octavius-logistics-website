@@ -1,8 +1,6 @@
 import { Color, Vector3 } from "three";
 import { converter, formatHex, type Oklch } from "culori";
 
-const toSRGB = converter("rgb");
-
 /**
  * SINGLE SOURCE OF TRUTH for scene color.
  *
@@ -57,14 +55,11 @@ export const DEEP_GRID_FADE = 0.5;
 
 /**
  * Marine-snow particulate colour — pale, very low chroma, faintly cool.
- * Emitted in *sRGB* (not linear): the points are a faint alpha-blended overlay,
- * so they composite correctly in the canvas's sRGB framebuffer (the point shader
- * outputs this value directly).
+ * Emitted in LINEAR: since Phase 7 the canvas renders through an EffectComposer
+ * whose input buffer is linear (it owns the final linear→sRGB encode), so every
+ * subsystem outputs linear.
  */
-export const particleColor = (() => {
-  const c = toSRGB(ok(0.86, 0.012, 240));
-  return new Vector3(clamp01(c.r), clamp01(c.g), clamp01(c.b));
-})();
+export const particleColor = linVec(ok(0.86, 0.012, 240));
 
 /** Floor as an sRGB hex, for scene fog color (forward-prep). */
 export const floorHex = formatHex(DEEP_OKLCH.floor);

@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { Container } from "@/components/container";
 import { RegistrationMark } from "@/components/registration-mark";
+import { IndexAnchorPublisher } from "@/components/home/index-anchor-publisher";
 import { products } from "@/data/products";
 
 /**
@@ -76,6 +77,8 @@ export function InstrumentsIndex() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span
+                    data-anchor={p.slug}
+                    data-hue={p.accentHue}
                     className="text-[color:var(--rh)] transition-colors duration-300 group-hover:text-[color:var(--rh-vivid)] md:justify-self-start"
                     style={{ lineHeight: 0 }}
                   >
@@ -108,6 +111,7 @@ export function InstrumentsIndex() {
           ))}
         </ul>
       </Container>
+      <IndexAnchorPublisher />
     </section>
   );
 }

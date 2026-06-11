@@ -9,6 +9,7 @@ import { ProductDemo } from "@/components/product/product-demo";
 import { HowItWorks } from "@/components/product/how-it-works";
 import { ProductDifferentiators } from "@/components/product/product-differentiators";
 import { ProductCta } from "@/components/product/product-cta";
+import { ProductAccentBridge } from "@/components/product/product-accent-bridge";
 import { hasDemo, getDemoMeta } from "@/components/product/demo-registry";
 
 // Static generation: pre-render exactly the five product slugs, nothing else.
@@ -48,6 +49,7 @@ export default async function ProductPage({ params }: ProductParams) {
 
   return (
     <div style={accentScope}>
+      <ProductAccentBridge hue={hue} />
       <ProductHero product={product} />
       <ProductProblem product={product} />
 

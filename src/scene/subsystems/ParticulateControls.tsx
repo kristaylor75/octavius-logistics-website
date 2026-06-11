@@ -13,11 +13,14 @@ import { DEFAULTS, particleParams } from "./Particulate";
  * mutable `particleParams` (read on the render hot path); `count` rebuilds the
  * geometry, so it goes through React state via `setCount`.
  *
- * The <Leva/> panel is PORTALED to document.body: this component mounts inside
- * DeepCanvas, which lives in DeepProvider's `fixed inset-0` wrapper (z-index
- * -20, pointer-events:none). Rendered inline the panel would be behind the page
- * and non-interactive; the portal lifts it to the top level. The single panel
- * shows every registered folder (Particulate + Caustics) from leva's store.
+ * Also renders the ONE shared <Leva/> root for the whole scene, PORTALED to
+ * document.body (this component mounts inside DeepCanvas, which lives in
+ * DeepProvider's `fixed inset-0` wrapper at z-index -20, pointer-events:none —
+ * rendered inline the panel would be behind the page and non-interactive). Every
+ * subsystem registers a folder into this one panel (Particulate / Caustics /
+ * Bioluminescence / Bloom / Bio · per-hue). The schema is inline in useControls
+ * — extracting it, or wrapping it in folder(), trips the react-hooks
+ * immutability rule on the singleton-mutation onChange handlers.
  */
 export default function ParticulateControls({
   count,
@@ -86,6 +89,42 @@ export default function ParticulateControls({
       step: 0.05,
       onChange: (v: number) => {
         particleParams.flowAmp = v;
+      },
+    },
+    bubbleAmount: {
+      value: DEFAULTS.bubbleAmount,
+      min: 0,
+      max: 1,
+      step: 0.05,
+      onChange: (v: number) => {
+        particleParams.bubbleAmount = v;
+      },
+    },
+    riseSpeed: {
+      value: DEFAULTS.riseSpeed,
+      min: 0,
+      max: 2,
+      step: 0.02,
+      onChange: (v: number) => {
+        particleParams.riseSpeed = v;
+      },
+    },
+    wobble: {
+      value: DEFAULTS.wobble,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange: (v: number) => {
+        particleParams.wobble = v;
+      },
+    },
+    plumeStrength: {
+      value: DEFAULTS.plumeStrength,
+      min: 0,
+      max: 1.5,
+      step: 0.05,
+      onChange: (v: number) => {
+        particleParams.plumeStrength = v;
       },
     },
     pointerInfluence: {

@@ -17,8 +17,8 @@ import {
  * straight into the mutable `causticParams` (read on the render hot path); the
  * tint goes through `setCausticTint` (sRGB hex → linear vector).
  *
- * Note: no <Leva/> root here — ParticulateControls already renders it; a second
- * root would duplicate the panel. This just registers a "Caustics" folder.
+ * No <Leva/> root here — ParticulateControls renders the one shared root. This
+ * just registers a "Caustics" folder into that single panel.
  */
 export default function AtmosphereControls() {
   useControls("Caustics", {

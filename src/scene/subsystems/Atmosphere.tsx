@@ -100,6 +100,8 @@ const FRAG = /* glsl */ `
   uniform float uCausticSpeed;
   uniform float uCausticFalloff;
   uniform vec3  uCausticTint;
+  uniform vec3  uBiasColor; // product-page accent (linear), Phase 7
+  uniform float uBiasMix;   // 0 off product pages .. ~0.6 on a product page
 
   // --- Ashima simplex noise (2D) ---
   vec3 mod289(vec3 x){ return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -141,11 +143,6 @@ const FRAG = /* glsl */ `
     return c;
   }
 
-  vec3 linearToSRGB(vec3 c){
-    c = max(c, 0.0);
-    return mix(1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, c * 12.92, step(c, vec3(0.0031308)));
-  }
-
   void main(){
     float p = clamp(1.0 - vUv.y, 0.0, 1.0); // 0 at surface (top) .. 1 at floor (bottom)
 
@@ -174,7 +171,10 @@ const FRAG = /* glsl */ `
     for (int i = 0; i < 4; i++) {
       vec2 d = (vUv - uAccentPos[i]) * vec2(aspect, 1.0);
       float glow = exp(-dot(d, d) / (0.20 * 0.20));
-      col = mix(col, uAccentColor[i], glow * band * 0.11);
+      // On a product page, bias the surface accents toward that page's hue
+      // (no new orbs — the existing accent band just leans to the accent).
+      vec3 ac = mix(uAccentColor[i], uBiasColor, uBiasMix);
+      col = mix(col, ac, glow * band * 0.11);
     }
 
     // Caustics: faint light cast from the surface. Two scrolling RIDGED simplex
@@ -196,7 +196,8 @@ const FRAG = /* glsl */ `
     float cDepth = lin * pow(max(lin, 1e-3), max(uCausticFalloff - 1.0, 0.0));
     col += uCausticTint * (caustic * upper * cDepth * uCausticIntensity);
 
-    gl_FragColor = vec4(linearToSRGB(clamp(col, 0.0, 1.0)), 1.0);
+    // Output LINEAR — the EffectComposer (DeepCanvas) owns the final sRGB encode.
+    gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
   }
 `;
 
@@ -217,6 +218,8 @@ type AtmoUniforms = {
   uCausticSpeed: IUniform<number>;
   uCausticFalloff: IUniform<number>;
   uCausticTint: IUniform<Vector3>;
+  uBiasColor: IUniform<Vector3>;
+  uBiasMix: IUniform<number>;
 };
 
 function makeUniforms(): AtmoUniforms {
@@ -252,6 +255,8 @@ function makeUniforms(): AtmoUniforms {
     uCausticSpeed: { value: CAUSTIC_DEFAULTS.speed },
     uCausticFalloff: { value: CAUSTIC_DEFAULTS.depthFalloff },
     uCausticTint: { value: causticTint.clone() },
+    uBiasColor: { value: new Vector3() },
+    uBiasMix: { value: 0 },
   };
 }
 
@@ -269,8 +274,9 @@ export function Atmosphere() {
     const mat = matRef.current;
     if (!mat) return;
     const u = mat.uniforms as unknown as AtmoUniforms;
+    const store = useDeepStore.getState();
 
-    u.uDepth.value = useDeepStore.getState().depth;
+    u.uDepth.value = store.depth;
     u.uTime.value += Math.min(delta, 0.05);
     state.gl.getDrawingBufferSize(u.uResolution.value);
     u.uPixelRatio.value = state.gl.getPixelRatio();
@@ -280,6 +286,13 @@ export function Atmosphere() {
     u.uCausticSpeed.value = causticParams.speed;
     u.uCausticFalloff.value = causticParams.depthFalloff;
     u.uCausticTint.value.copy(causticTint);
+
+    // Product-page accent bias (Phase 7): ease the surface accents toward the
+    // current page hue. Gentle fade so navigation doesn't snap.
+    const accent = store.accentHue;
+    const targetMix = accent ? 0.4 : 0.0; // subtle tint, not a corner glow (Phase 8)
+    u.uBiasMix.value += (targetMix - u.uBiasMix.value) * 0.05;
+    if (accent) u.uBiasColor.value.copy(hueSubtle[accent]);
   });
 
   return (

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/container";
+import { useDeepStore } from "@/scene/store";
+import type { HueKey } from "@/scene/palette";
 
 /**
  * Instrument Constellation — the home hero. Client component, lazy-loaded.
@@ -246,11 +248,38 @@ export default function InstrumentConstellation({
           c.setAttribute("cy", (pa.y + (pb.y - pa.y) * frac).toFixed(2));
         }
       });
+      // Publish live node screen-positions (client px) for the WebGL
+      // Bioluminescence layer (Phase 7). Uses the same getScreenCTM transform as
+      // the readout; updates every frame so glows track drift/scroll/resize.
+      const svg = svgRef.current;
+      const ctm = svg?.getScreenCTM();
+      if (svg && ctm) {
+        const pt = svg.createSVGPoint();
+        useDeepStore.getState().setAnchors(
+          "hero",
+          nodes.map((n) => {
+            const p = live[n.slug];
+            pt.x = p.x;
+            pt.y = p.y;
+            const sp = pt.matrixTransform(ctm);
+            return {
+              id: `hero-${n.slug}`,
+              x: sp.x,
+              y: sp.y,
+              hue: n.hue as HueKey,
+              strength: 1,
+            };
+          }),
+        );
+      }
       positionReadout(hoveredRef.current, live);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      useDeepStore.getState().setAnchors("hero", []);
+    };
   }, [reduced, nodes, positionReadout]);
 
   // position the readout on hover (covers the reduced-motion / no-loop case)
