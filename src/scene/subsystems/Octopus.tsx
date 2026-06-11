@@ -109,6 +109,14 @@ const FRAG = /* glsl */ `
     return length(p - c) - thick;
   }
 
+  // Rotated almond/lens distance (<1 inside) for an eye — wider than tall, with
+  // an inward tilt so the pair reads fierce but still faces straight ahead.
+  float eyeDist(vec2 e, float tilt, vec2 rad){
+    float c = cos(tilt), s = sin(tilt);
+    vec2 r = vec2(c * e.x - s * e.y, s * e.x + c * e.y);
+    return length(r / rad);
+  }
+
   void main() {
     vec2 p = (vUv - 0.5) * 2.0;                 // [-1, 1] over the plane
     float t = uTime;
@@ -121,8 +129,11 @@ const FRAG = /* glsl */ `
     float breathe = 1.0 + 0.025 * sin(t * 0.5);
     float ty = clamp((q.y / breathe + 0.30) / 0.60, 0.0, 1.0); // 0 neck .. 1 crown
     float w = mix(0.115, 0.215, smoothstep(0.0, 0.55, ty))
-              - 0.03 * smoothstep(0.72, 1.0, ty);             // pinch the crown → egg
+              - 0.03 * smoothstep(0.72, 1.0, ty)              // pinch the crown → egg
+              + 0.022 * exp(-pow((q.y + 0.02) / 0.075, 2.0)); // brow ridge at eye level
     float body = length(vec2(q.x / (w * breathe), q.y / (0.30 * breathe))) - 1.0;
+    // Mantle fold: a soft notch splits the crown into two lobes (octopus head).
+    body += 0.05 * smoothstep(0.16, 0.31, q.y) * smoothstep(0.07, 0.0, abs(q.x));
 
     // Eight arms emanating from the lower mantle, fanned across the underside.
     vec2 base = vec2(0.0, -0.16);
@@ -147,15 +158,22 @@ const FRAG = /* glsl */ `
     m *= 1.0 - smoothstep(0.86, 1.06, length(p));
     float bodyA = m * uPresence;          // faint body fill
 
-    // Electric-blue eyes on the sides of the lower mantle. Their alpha is gated
-    // by uEyeAlpha (home × slow depth fade) but NOT by the faint body presence —
-    // so they keep their glow as the body dims, and the colour is bright enough
-    // to catch the selective bloom (glowing eyes in the gloom).
-    float ed = min(length(q - vec2(-0.115, -0.02)),
-                   length(q - vec2( 0.115, -0.02)));
-    float eye = smoothstep(0.030 * breathe, 0.010, ed);
-    float eyeA = eye * uEyeAlpha;
+    // Fierce almond eyes (NOT round): wider than tall, tilted INWARD-down and
+    // mirrored, so the pair glares forward. A bright electric-blue core glows;
+    // a brow shadow above broods. Gated by uEyeAlpha (home × slow depth fade),
+    // never by the faint body presence — they hold their glow and catch the
+    // selective bloom. Inspired by the reference's slit-eyed, sculpted head.
+    float dR = eyeDist(q - vec2( 0.118, -0.01), -0.40, vec2(0.060, 0.024) * breathe);
+    float dL = eyeDist(q - vec2(-0.118, -0.01),  0.40, vec2(0.060, 0.024) * breathe);
+    float ealmond = min(dR, dL);
+    float eye = smoothstep(1.04, 0.5, ealmond);   // almond glow
+    float pupil = smoothstep(0.5, 0.04, ealmond);  // intense pupil core
+    // Brow shadow just above each eye — a brooding ridge.
+    float brow = smoothstep(1.25, 0.45, min(
+      length((q - vec2( 0.118, 0.055)) / vec2(0.085, 0.020)),
+      length((q - vec2(-0.118, 0.055)) / vec2(0.085, 0.020))));
 
+    float eyeA = eye * uEyeAlpha;
     float alpha = max(bodyA, eyeA);
     if (alpha < 0.003) discard;
 
@@ -164,7 +182,10 @@ const FRAG = /* glsl */ `
     // alpha edge, and only recolours, never adds opacity).
     float outline = 1.0 - smoothstep(0.0, 0.045, abs(d));
     vec3 col = mix(uFillColor, uFillColor * 1.7 + 0.012, outline * uRim);
-    col = mix(col, vec3(0.10, 0.45, 1.5), eye); // electric blue where the eyes are
+    col = mix(col, col * 0.35, brow * 0.6 * m); // brooding brow shadow (within the body)
+    // Electric blue, far brighter at the pupil so it blooms into a glowing eye.
+    vec3 eyeCol = vec3(0.10, 0.45, 1.5) * (0.65 + 0.8 * pupil);
+    col = mix(col, eyeCol, eye);
     gl_FragColor = vec4(col, alpha);
   }
 `;
