@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { type Mesh, ShaderMaterial, Vector2, Vector3, type IUniform } from "three";
+import { converter } from "culori";
 import { useDeepStore } from "../store";
 
 /**
@@ -38,6 +39,21 @@ export const OCTO_DEFAULTS: OctopusParams = {
 
 export const octopusParams: OctopusParams = { ...OCTO_DEFAULTS };
 
+// Selectable fill colour (dev colour picker). sRGB hex → LINEAR for the shader
+// (the composer owns the sRGB encode), mirroring the caustic-tint pattern. The
+// silhouette is filled with this; the edge gets a fainter, brighter outline.
+const _toLinear = converter("lrgb");
+const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
+export const OCTO_FILL_HEX = "#35586a";
+export const octoFill = (() => {
+  const c = _toLinear(OCTO_FILL_HEX);
+  return new Vector3(clamp01(c?.r ?? 0), clamp01(c?.g ?? 0), clamp01(c?.b ?? 0));
+})();
+export function setOctoFill(hex: string) {
+  const c = _toLinear(hex);
+  if (c) octoFill.set(clamp01(c.r), clamp01(c.g), clamp01(c.b));
+}
+
 // Placement: a large, soft plane deep in the gloom.
 const PLANE_SIZE = 12;
 const PLANE_Z = -9;
@@ -62,8 +78,7 @@ const FRAG = /* glsl */ `
   uniform float uPresence;
   uniform float uArmCurl;
   uniform float uRim;
-  uniform vec3 uColor;
-  uniform vec3 uRimColor;
+  uniform vec3 uFillColor;
 
   // smooth-union of two SDFs (organic blending — arms flow out of the mantle)
   float smin(float a, float b, float k){
@@ -126,12 +141,15 @@ const FRAG = /* glsl */ `
     // Soft silhouette + dissolve before the plane edge.
     float m = smoothstep(0.05, -0.03, d);
     m *= 1.0 - smoothstep(0.86, 1.06, length(p));
+    // Fill: the interior is the most opaque; the soft edge tapers off.
     float alpha = m * uPresence;
     if (alpha < 0.003) discard;
 
-    // Faint cool rim where the body catches the dim light from above.
-    float rim = 1.0 - smoothstep(0.0, 0.05, abs(d));
-    vec3 col = mix(uColor, uRimColor, rim * uRim);
+    // Outline: the silhouette edge catches a touch more of the dim light from
+    // above — a brighter rim, but fainter than the fill (it rides the lower-
+    // alpha edge, and only recolours, never adds opacity).
+    float outline = 1.0 - smoothstep(0.0, 0.045, abs(d));
+    vec3 col = mix(uFillColor, uFillColor * 1.7 + 0.012, outline * uRim);
     gl_FragColor = vec4(col, alpha);
   }
 `;
@@ -141,8 +159,7 @@ type OctoUniforms = {
   uPresence: IUniform<number>;
   uArmCurl: IUniform<number>;
   uRim: IUniform<number>;
-  uColor: IUniform<Vector3>;
-  uRimColor: IUniform<Vector3>;
+  uFillColor: IUniform<Vector3>;
 };
 
 function makeUniforms(): OctoUniforms {
@@ -151,9 +168,7 @@ function makeUniforms(): OctoUniforms {
     uPresence: { value: 0 },
     uArmCurl: { value: 0 },
     uRim: { value: 0.5 },
-    // Dark, low-chroma, faintly cool (LINEAR). Rim is a touch lighter.
-    uColor: { value: new Vector3(0.01, 0.014, 0.022) },
-    uRimColor: { value: new Vector3(0.05, 0.07, 0.1) },
+    uFillColor: { value: octoFill.clone() },
   };
 }
 
@@ -177,6 +192,7 @@ export function Octopus() {
     const p = octopusParams;
 
     u.uTime.value += dt;
+    u.uFillColor.value.copy(octoFill);
 
     // Home gate: only behind the hero (the constellation publishes hero-* anchors).
     const onHero = store.anchors.some((a) => a.id.startsWith("hero-")) ? 1 : 0;

@@ -1,7 +1,12 @@
 "use client";
 
 import { useControls } from "leva";
-import { OCTO_DEFAULTS, octopusParams } from "./Octopus";
+import {
+  OCTO_DEFAULTS,
+  OCTO_FILL_HEX,
+  octopusParams,
+  setOctoFill,
+} from "./Octopus";
 
 /**
  * DEV-ONLY leva panel for the Octopus (Phase 9). Registers an "Octopus" folder
@@ -11,6 +16,12 @@ import { OCTO_DEFAULTS, octopusParams } from "./Octopus";
  */
 export default function OctopusControls() {
   useControls("Octopus", {
+    color: {
+      value: OCTO_FILL_HEX,
+      onChange: (v: string) => {
+        setOctoFill(v);
+      },
+    },
     presence: {
       value: OCTO_DEFAULTS.presence,
       min: 0,
