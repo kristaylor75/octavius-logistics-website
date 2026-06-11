@@ -26,7 +26,8 @@ export default function Home() {
     <>
       <InstrumentConstellation
         nodes={heroNodes}
-        headline="We build the instruments that make logistics' invisible structure legible."
+        headline="Recover the margin your supply chain is quietly losing."
+        sub="Octavius reads the hidden cost, demand, and inventory that drain margin — every reading measured and sourced — so you can recover the money and stop the next leak."
       />
 
       <ThesisStatement />

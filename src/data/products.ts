@@ -179,7 +179,7 @@ export const products: Product[] = [
     accentHue: "odyssey",
     tagline: "Fulfillment & demand visualization",
     promise:
-      "See fulfillment flow and demand as a living surface — network state legible at a glance.",
+      "See demand shift and fulfillment strain as a living map — before either costs you a sale.",
     reads: "Network state & demand, as cartography.",
     problem:
       "Demand and fulfillment are tracked in tables and dashboards that obscure shape and movement — you see numbers, not the terrain.",
@@ -216,7 +216,7 @@ export const products: Product[] = [
     accentHue: "traderoute",
     tagline: "Reseller inventory lifecycle",
     promise:
-      "Track every unit of reseller inventory through its full lifecycle — stock as it moves through time.",
+      "Track every unit through its lifecycle — catch aging, shrink, and stranded stock before they turn into loss.",
     reads: "Stock as it moves through its lifecycle.",
     problem:
       "Reseller inventory changes hands and state constantly. Snapshots miss the transitions, so aging, shrink, and stranded stock go unseen until they cost money.",

@@ -30,7 +30,7 @@ export function ProofOfDepth() {
                 letterSpacing: "var(--tracking-tight)",
               }}
             >
-              The instruments are precise because the expertise is.
+              The recovery is measured, not estimated.
             </h2>
             <p
               className="mt-8 max-w-[58ch] text-ink-muted"
@@ -49,7 +49,7 @@ export function ProofOfDepth() {
             {/* corner registration ticks */}
             <span
               aria-hidden
-              className="absolute right-4 top-4 font-mono text-[0.5625rem] uppercase tracking-[0.1em] text-ink-ghost"
+              className="absolute right-4 top-4 font-mono text-[0.5625rem] uppercase tracking-[0.1em] text-ink-faint"
             >
               Fig. 02
             </span>

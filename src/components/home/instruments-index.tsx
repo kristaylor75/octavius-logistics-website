@@ -32,8 +32,13 @@ export function InstrumentsIndex() {
               The register
             </h2>
           </div>
-          <span className="mono-label text-ink-ghost">05 entries · scale 1:1</span>
+          <span className="mono-label text-ink-faint">05 entries · scale 1:1</span>
         </div>
+
+        <p className="mb-10 max-w-[52ch] text-ink-muted" style={{ fontSize: "var(--text-xl)", lineHeight: 1.5 }}>
+          Five instruments, one job: surface the money your supply chain hides —
+          cost leaks, aging stock, demand and decisions you can finally act on.
+        </p>
 
         {/* column captions */}
         <div
@@ -73,7 +78,7 @@ export function InstrumentsIndex() {
 
                 {/* index + registration mark (flatten into the grid on md) */}
                 <div className="flex items-center gap-4 md:contents">
-                  <span className="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-ink-ghost md:self-center md:justify-self-start">
+                  <span className="font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-ink-faint md:self-center md:justify-self-start">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span

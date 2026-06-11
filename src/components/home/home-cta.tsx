@@ -43,10 +43,10 @@ export function HomeCta() {
                 letterSpacing: "var(--tracking-tight)",
               }}
             >
-              See what your supply chain has been hiding.
+              Find what your supply chain is costing you.
             </h2>
             <p className="mx-auto mt-6 max-w-[40ch] text-ink-muted">
-              Tell us the quantity you need to read. We&rsquo;ll point you at the
+              Tell us where you suspect the leak. We&rsquo;ll point you at the
               instrument and get you access.
             </p>
 

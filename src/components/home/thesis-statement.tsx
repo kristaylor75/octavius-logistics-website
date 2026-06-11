@@ -13,10 +13,10 @@ export function ThesisStatement() {
         <span className="mono-label absolute left-6 top-12 sm:left-8">
           § 01 / Thesis
         </span>
-        <span className="mono-label absolute right-6 top-12 text-ink-ghost sm:right-8">
+        <span className="mono-label absolute right-6 top-12 text-ink-faint sm:right-8">
           LAT 0.000 · LON 0.000
         </span>
-        <span className="mono-label absolute bottom-12 right-6 text-ink-ghost sm:right-8">
+        <span className="mono-label absolute bottom-12 right-6 text-ink-faint sm:right-8">
           Fig. 01 / Legibility
         </span>
 
@@ -29,15 +29,16 @@ export function ThesisStatement() {
               letterSpacing: "var(--tracking-tight)",
             }}
           >
-            Logistics runs on structure no one can see.
+            The money leaks where no one is looking.
           </p>
           <p
-            className="mx-auto mt-8 max-w-[34ch] text-ink-muted"
+            className="mx-auto mt-8 max-w-[40ch] text-ink-muted"
             style={{ fontSize: "clamp(1.125rem, 2vw, 1.375rem)", lineHeight: 1.45 }}
           >
-            Cost mechanics, network state, demand, the lifecycle of every unit,
-            the logic behind every decision — none of it visible, all of it
-            deciding whether a supply chain holds or bleeds.
+            Overcharges no one audits. Stock that ages out of value. Demand you
+            see a week too late. The structure that decides whether a supply
+            chain holds or bleeds is invisible — and every blind spot has a
+            price.
           </p>
           <p
             className="mt-12 font-semibold"
@@ -47,7 +48,7 @@ export function ThesisStatement() {
               letterSpacing: "var(--tracking-tight)",
             }}
           >
-            Octavius builds the instruments that make it legible.
+            Octavius makes it readable — and the leak recoverable.
           </p>
         </div>
       </Container>

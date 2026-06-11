@@ -112,9 +112,11 @@ function glyphFor(slug: string, hue: string): ReactNode {
 export default function InstrumentConstellation({
   nodes,
   headline,
+  sub,
 }: {
   nodes: ConstellationNode[];
   headline: string;
+  sub: string;
 }) {
   const router = useRouter();
   const bySlug = Object.fromEntries(nodes.map((n) => [n.slug, n]));
@@ -350,10 +352,10 @@ export default function InstrumentConstellation({
             <line x1={VW - 24} y1={VH - 24} x2={VW - 44} y2={VH - 24} />
             <line x1={VW - 24} y1={VH - 24} x2={VW - 24} y2={VH - 44} />
           </g>
-          <text x={24} y={VH - 22} fontSize={11} letterSpacing="1.2" fill="var(--ink-ghost)" style={{ fontFamily: "var(--font-mono)" }}>
+          <text x={24} y={VH - 22} fontSize={11} letterSpacing="1.2" fill="var(--ink-faint)" style={{ fontFamily: "var(--font-mono)" }}>
             FIG. 00 / PORTFOLIO
           </text>
-          <text x={VW - 24} y={34} fontSize={11} letterSpacing="1.2" textAnchor="end" fill="var(--ink-ghost)" style={{ fontFamily: "var(--font-mono)" }}>
+          <text x={VW - 24} y={34} fontSize={11} letterSpacing="1.2" textAnchor="end" fill="var(--ink-faint)" style={{ fontFamily: "var(--font-mono)" }}>
             N 5 · INSTRUMENTS
           </text>
 
@@ -514,6 +516,12 @@ export default function InstrumentConstellation({
           >
             {headline}
           </h1>
+          <p
+            className="mt-6 max-w-[40ch] text-ink-muted"
+            style={{ fontSize: "var(--text-xl)", lineHeight: 1.5 }}
+          >
+            {sub}
+          </p>
           <div className="pointer-events-auto mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
             <Link
               href="/thesis"
@@ -523,7 +531,7 @@ export default function InstrumentConstellation({
               Read the thesis
               <span className="font-mono text-[0.6875rem]">→</span>
             </Link>
-            <span className="mono-label text-ink-ghost">Hover an instrument ↗</span>
+            <span className="mono-label text-ink-faint">Hover an instrument ↗</span>
           </div>
         </div>
       </Container>
