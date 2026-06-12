@@ -27,6 +27,9 @@ export type OctopusParams = {
   posX: number;
   posY: number;
   armCurlStrength: number;
+  contourSpacing: number; // SDF spacing between bathymetric isolines
+  lineWidth: number; // contour line weight (in screen-derivative units → ~px)
+  fillAmount: number; // faint fill under the lines (0 = pure contour)
 };
 
 export const OCTO_DEFAULTS: OctopusParams = {
@@ -35,6 +38,9 @@ export const OCTO_DEFAULTS: OctopusParams = {
   posX: 6.9,
   posY: 1.8,
   armCurlStrength: 0,
+  contourSpacing: 0.6,
+  lineWidth: 0.8,
+  fillAmount: 0.1,
 };
 
 export const octopusParams: OctopusParams = { ...OCTO_DEFAULTS };
@@ -79,6 +85,9 @@ const FRAG = /* glsl */ `
   uniform float uEyeAlpha;  // eye gate: home × (slow) depth fade, NOT presence
   uniform float uArmCurl;
   uniform float uRim;
+  uniform float uContourSpacing;
+  uniform float uLineWidth;
+  uniform float uFillAmount;
   uniform vec3 uFillColor;
 
   // smooth-union of two SDFs (organic blending — arms flow out of the mantle)
@@ -153,10 +162,9 @@ const FRAG = /* glsl */ `
 
     float d = smin(body, arms, 0.11);
 
-    // Soft silhouette + dissolve before the plane edge.
+    // Interior mask (for the faint fill + brow), dissolving before the plane edge.
     float m = smoothstep(0.05, -0.03, d);
     m *= 1.0 - smoothstep(0.86, 1.06, length(p));
-    float bodyA = m * uPresence;          // faint body fill
 
     // Fierce almond eyes (NOT round): wider than tall, tilted INWARD-down and
     // mirrored, so the pair glares forward. A bright electric-blue core glows;
@@ -173,16 +181,37 @@ const FRAG = /* glsl */ `
       length((q - vec2( 0.118, 0.055)) / vec2(0.085, 0.020)),
       length((q - vec2(-0.118, 0.055)) / vec2(0.085, 0.020))));
 
+    // Contour-line rendering — crisp bathymetric isolines of the body's distance
+    // field, like a depth chart of the creature. fwidth() makes each line ~1px in
+    // SCREEN space (resolution-independent, genuinely sharp — never the soft blur
+    // of an alpha-faded blob), matching the site's hairline + contour idiom: the
+    // octopus reads as something *measured and plotted*, not a lurking ghost.
+    // Contour basis: the DEPTH below the silhouette, log-remapped so isolines are
+    // spaced evenly across BOTH the deep mantle and the thin tapering arms. (Raw
+    // SDF depth crowds every interior line into the thick head and leaves the arms
+    // with only their outline; the log lifts the shallow arm interior to match, so
+    // the inner-line treatment continues out along every tentacle.)
+    float depthIn = max(-d, 0.0);
+    float field = log(1.0 + depthIn * 40.0);
+    float cd = field / max(uContourSpacing, 1e-4);
+    float contour = 1.0 - smoothstep(
+      0.0, uLineWidth, abs(fract(cd - 0.5) - 0.5) / max(fwidth(cd), 1e-5));
+    contour *= 1.0 - smoothstep(0.0, 0.02, d);          // interior lines only within the silhouette
+    contour *= 1.0 - smoothstep(0.86, 1.06, length(p)); // dissolve before the plane edge
+    // The d≈0 isoline IS the silhouette — a crisp outline everywhere (head + arms).
+    float outline = 1.0 - smoothstep(0.0, max(fwidth(d), 1e-5) * 1.6, abs(d));
+    contour = max(contour, outline);
+
+    float fillA = m * uFillAmount;                  // optional faint wash under the lines
+    float bodyA = max(contour, fillA) * uPresence;
+
     float eyeA = eye * uEyeAlpha;
     float alpha = max(bodyA, eyeA);
     if (alpha < 0.003) discard;
 
-    // Outline: the silhouette edge catches a touch more of the dim light from
-    // above — a brighter rim, but fainter than the fill (it rides the lower-
-    // alpha edge, and only recolours, never adds opacity).
-    float outline = 1.0 - smoothstep(0.0, 0.045, abs(d));
-    vec3 col = mix(uFillColor, uFillColor * 1.7 + 0.012, outline * uRim);
-    col = mix(col, col * 0.35, brow * 0.6 * m); // brooding brow shadow (within the body)
+    // Lines read a touch brighter than the faint wash; the brow broods in the fill.
+    vec3 col = mix(uFillColor * 0.6, uFillColor * 1.55 + 0.01, contour);
+    col = mix(col, col * 0.4, brow * 0.5 * fillA);
     // Electric blue, far brighter at the pupil so it blooms into a glowing eye.
     vec3 eyeCol = vec3(0.10, 0.45, 1.5) * (0.65 + 0.8 * pupil);
     col = mix(col, eyeCol, eye);
@@ -196,6 +225,9 @@ type OctoUniforms = {
   uEyeAlpha: IUniform<number>;
   uArmCurl: IUniform<number>;
   uRim: IUniform<number>;
+  uContourSpacing: IUniform<number>;
+  uLineWidth: IUniform<number>;
+  uFillAmount: IUniform<number>;
   uFillColor: IUniform<Vector3>;
 };
 
@@ -206,6 +238,9 @@ function makeUniforms(): OctoUniforms {
     uEyeAlpha: { value: 0 },
     uArmCurl: { value: 0 },
     uRim: { value: 0.5 },
+    uContourSpacing: { value: OCTO_DEFAULTS.contourSpacing },
+    uLineWidth: { value: OCTO_DEFAULTS.lineWidth },
+    uFillAmount: { value: OCTO_DEFAULTS.fillAmount },
     uFillColor: { value: octoFill.clone() },
   };
 }
@@ -231,6 +266,9 @@ export function Octopus() {
 
     u.uTime.value += dt;
     u.uFillColor.value.copy(octoFill);
+    u.uContourSpacing.value = p.contourSpacing;
+    u.uLineWidth.value = p.lineWidth;
+    u.uFillAmount.value = p.fillAmount;
 
     // Home gate: only behind the hero (the constellation publishes hero-* anchors).
     const onHero = store.anchors.some((a) => a.id.startsWith("hero-")) ? 1 : 0;

@@ -52,56 +52,122 @@ const EDGES: [string, string][] = [
   ["reflex", "odyssey"],
 ];
 
+// Cortex axon centreline — the impulse travels this. MUST stay identical to the
+// `offset-path` in globals.css (.glyph.is-hot .neuron-spark) or the spark drifts
+// off the wire.
+const NEURON_AXON = "M -3 -2.6 C 2 0.5, 5.5 3.5, 10.6 9";
+
 /** Per-product glyph — drawn around (0,0), within ~r14, in the node's hue.
- *  Stroked by the wrapping <g>; filled dots set fill explicitly. */
-function glyphFor(slug: string, hue: string): ReactNode {
+ *  Stroked by the wrapping <g>; filled parts set fill explicitly. Sub-elements
+ *  carry class names the globals.css hover animations key off (.is-hot). */
+function glyphFor(slug: string, hue: string, hueKey: string): ReactNode {
+  const vivid = `var(--${hueKey}-vivid)`;
   switch (slug) {
-    case "cortex": // deterministic decision branch — one path is the chosen one
+    case "cortex": // a neuron — a signal resolves along one path and fires
       return (
         <>
-          <circle cx={0} cy={-10} r={1.9} fill={hue} stroke="none" />
-          <line x1={0} y1={-8} x2={0} y2={-3} />
-          <line x1={0} y1={-3} x2={-9} y2={6} />
-          <line x1={0} y1={-3} x2={9} y2={6} />
-          <circle cx={-9} cy={6} r={2.1} fill="var(--bg)" />
-          <circle cx={9} cy={6} r={2.1} fill={hue} stroke="none" />
+          {/* dendrites */}
+          <path
+            d="M -5.6 -5 L -11.6 -8.2 M -8.8 -6.5 L -10.7 -10.9 M -6.6 -3.2 L -12.7 -2.4 M -5 -6.6 L -6.2 -11.6"
+            fill="none"
+          />
+          {/* axon + terminal branches */}
+          <path d={NEURON_AXON} fill="none" />
+          <path
+            d="M 10.6 9 L 13.6 7.2 M 10.6 9 L 12.4 12 M 10.6 9 L 8.2 12.4"
+            fill="none"
+          />
+          {/* synaptic boutons (fire when the impulse arrives) */}
+          <circle className="neuron-terminal" cx={13.6} cy={7.2} r={1.5} fill={hue} stroke="none" />
+          <circle className="neuron-terminal" cx={12.4} cy={12} r={1.5} fill={hue} stroke="none" />
+          <circle className="neuron-terminal" cx={8.2} cy={12.4} r={1.5} fill={hue} stroke="none" />
+          {/* soma (cell body) */}
+          <circle className="neuron-soma" cx={-4.4} cy={-4} r={3} fill={hue} stroke="none" />
+          {/* travelling impulse */}
+          <circle className="neuron-spark" r={2.1} fill={vivid} stroke="none" />
         </>
       );
     case "reflex": // an encoded judgment firing — a reflex spike
       return (
-        <polyline
-          points="-13,4 -4,4 -1.5,4 0,-9 1.8,8 3.4,4 13,4"
-          fill="none"
-        />
-      );
-    case "imagine": // a cost ledger with one figure flagged
-      return (
         <>
-          <line x1={-10} y1={-8.5} x2={-10} y2={8.5} />
-          <line x1={-10} y1={-6} x2={1} y2={-6} />
-          <line x1={-10} y1={0} x2={8} y2={0} />
-          <circle cx={11} cy={0} r={1.9} fill={hue} stroke="none" />
-          <line x1={-10} y1={6} x2={-3} y2={6} />
+          <polyline
+            className="reflex-trace"
+            points="-13,4 -4,4 -1.5,4 0,-9 1.8,8 3.4,4 13,4"
+            fill="none"
+            pathLength={1}
+          />
+          <circle className="reflex-flash" cx={0} cy={-9} r={2.3} fill={vivid} stroke="none" />
         </>
       );
-    case "odyssey": // a demand surface — topographic contours
+    case "imagine": // a light bulb — the hidden cost lit up
       return (
         <>
-          <ellipse cx={0} cy={0} rx={4.5} ry={3.5} />
-          <ellipse cx={-1} cy={1} rx={9} ry={7} />
-          <ellipse cx={-1.5} cy={1.5} rx={13.5} ry={10.5} />
-          <circle cx={0} cy={0} r={1.5} fill={hue} stroke="none" />
+          {/* glow (off until lit) */}
+          <circle className="bulb-glow bulb-glow-outer" cx={0} cy={-3.5} r={8.5} fill={hue} stroke="none" />
+          <circle className="bulb-glow bulb-glow-inner" cx={0} cy={-3.5} r={4.5} fill={vivid} stroke="none" />
+          {/* glass envelope */}
+          <circle cx={0} cy={-3.5} r={7.5} fill="none" />
+          {/* screw base */}
+          <path d="M -3.4 4 L 3.4 4 M -3 6 L 3 6 M -2.3 8 L 2.3 8 M -3.4 4 L -2.3 8 M 3.4 4 L 2.3 8" fill="none" />
+          {/* filament + support wires */}
+          <path className="bulb-filament" d="M -1.6 4 L -3.4 -1 L -1.2 -4 L 1.2 -1 L 3.4 -4.5 L 1.6 4" fill="none" />
+          {/* light rays (burst out when lit) */}
+          <g className="bulb-rays" fill="none">
+            <line x1={0} y1={-13.5} x2={0} y2={-16.5} />
+            <line x1={8.8} y1={-9} x2={11} y2={-11.2} />
+            <line x1={-8.8} y1={-9} x2={-11} y2={-11.2} />
+            <line x1={11} y1={-1.5} x2={14} y2={-1.5} />
+            <line x1={-11} y1={-1.5} x2={-14} y2={-1.5} />
+          </g>
         </>
       );
-    case "traderoute": // an inventory lifecycle — a cycle through states
+    case "odyssey": // a ship under sail on the sea — fulfilment underway
       return (
         <>
-          <path d="M 5.16 -9.71 A 11 11 0 1 1 -5.16 -9.71" fill="none" />
-          <polyline points="-7.8,-9.4 -5.16,-9.71 -4.2,-12.3" fill="none" />
-          <circle cx={9.5} cy={5.5} r={1.5} fill={hue} stroke="none" />
-          <circle cx={-9.5} cy={5.5} r={1.5} fill={hue} stroke="none" />
-          <circle cx={0} cy={11} r={1.5} fill={hue} stroke="none" />
-          <circle cx={0} cy={0} r={1.5} fill={hue} stroke="none" />
+          <defs>
+            <clipPath id="odyssey-sea">
+              <circle cx={0} cy={0} r={14} />
+            </clipPath>
+          </defs>
+          {/* drifting sea, clipped to the icon disc */}
+          <g clipPath="url(#odyssey-sea)" fill="none">
+            <path className="sea-wave sea-wave-1" d="M -24 6 q 3 -2.4 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0" />
+            <path className="sea-wave sea-wave-2" d="M -24 9 q 3 -2 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0 t 6 0" />
+          </g>
+          {/* ship (bobs on the swell) */}
+          <g className="ship">
+            <path d="M -6.6 1 L 6.6 1 Q 0 7 -6.6 1 Z" fill="none" />
+            <line x1={0} y1={1} x2={0} y2={-11} />
+            <path className="ship-sail" d="M 0.9 -10 L 0.9 -1.4 L 6.6 -1.4 Q 3.6 -5.6 0.9 -10 Z" fill="none" />
+            <path d="M 0 -11 L 3 -10 L 0 -9" fill="none" />
+          </g>
+          {/* plotted position */}
+          <circle cx={0} cy={1} r={1.4} fill={hue} stroke="none" />
+        </>
+      );
+    case "traderoute": // a compass — inventory finding its bearing
+      return (
+        <>
+          {/* bezel */}
+          <circle cx={0} cy={0} r={13} fill="none" />
+          {/* cardinal + minor ticks */}
+          <g fill="none">
+            <line x1={0} y1={-13} x2={0} y2={-8.5} />
+            <line x1={13} y1={0} x2={9.8} y2={0} />
+            <line x1={0} y1={13} x2={0} y2={9.8} />
+            <line x1={-13} y1={0} x2={-9.8} y2={0} />
+            <line x1={9.2} y1={-9.2} x2={7.6} y2={-7.6} />
+            <line x1={9.2} y1={9.2} x2={7.6} y2={7.6} />
+            <line x1={-9.2} y1={9.2} x2={-7.6} y2={7.6} />
+            <line x1={-9.2} y1={-9.2} x2={-7.6} y2={-7.6} />
+          </g>
+          {/* magnetic needle (spins up + settles to north on hover) */}
+          <g className="compass-needle">
+            <path d="M 0 -9 L 2.3 0 L -2.3 0 Z" fill={hue} stroke="none" />
+            <path d="M 0 9 L 2.3 0 L -2.3 0 Z" fill="var(--bg)" stroke={hue} strokeWidth={1} />
+          </g>
+          {/* pivot */}
+          <circle className="compass-pivot" cx={0} cy={0} r={1.7} fill={vivid} stroke="none" />
         </>
       );
     default:
@@ -452,6 +518,7 @@ export default function InstrumentConstellation({
                   )}
                   {/* bespoke instrument glyph */}
                   <g
+                    className={isHot ? "glyph is-hot" : "glyph"}
                     stroke={hueOf(n.slug)}
                     strokeWidth={1.3}
                     fill="none"
@@ -459,7 +526,7 @@ export default function InstrumentConstellation({
                     strokeLinejoin="round"
                     opacity={isHot ? 1 : 0.82}
                   >
-                    {glyphFor(n.slug, hueOf(n.slug))}
+                    {glyphFor(n.slug, hueOf(n.slug), n.hue)}
                   </g>
                   {/* label */}
                   <text

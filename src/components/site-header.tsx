@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Container } from "@/components/container";
 import { RegistrationMark } from "@/components/registration-mark";
 import { products } from "@/data/products";
@@ -19,12 +20,33 @@ export function SiteHeader() {
       }}
     >
       <Container className="grid h-14 grid-cols-[1fr_auto_1fr] items-center gap-4">
-        {/* Wordmark — left */}
+        {/* Wordmark — left: octopus mark + instrument-nameplate lockup */}
         <Link
           href="/"
-          className="justify-self-start rounded-[2px] font-mono text-xs uppercase tracking-[0.1em] text-ink whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--cortex)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)]"
+          aria-label="Octavius Logistics — home"
+          className="group flex items-center gap-2.5 justify-self-start rounded-[2px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--cortex)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)]"
         >
-          Octavius<span className="text-ink-faint"> Logistics</span>
+          <span className="relative block h-8 w-8 shrink-0">
+            {/* unoptimized: a 32px brand mark gains nothing from the image
+                optimizer, and skipping it serves the crisp source directly. */}
+            <Image
+              src="/octavius-mark.png"
+              alt=""
+              fill
+              sizes="32px"
+              priority
+              unoptimized
+              className="object-contain transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] group-hover:scale-105"
+            />
+          </span>
+          <span className="flex flex-col leading-none">
+            <span className="font-display text-[0.95rem] font-semibold leading-none tracking-[0.005em] text-ink">
+              Octavius
+            </span>
+            <span className="mt-[3px] font-mono text-[0.5rem] uppercase leading-none tracking-[0.34em] text-ink-faint transition-colors duration-200 group-hover:text-ink-muted">
+              Logistics
+            </span>
+          </span>
         </Link>
 
         {/* Instrument index — center */}

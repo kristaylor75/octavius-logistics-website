@@ -67,6 +67,33 @@ export default function OctopusControls() {
         octopusParams.armCurlStrength = v;
       },
     },
+    contourSpacing: {
+      value: OCTO_DEFAULTS.contourSpacing,
+      min: 0.2,
+      max: 1.5,
+      step: 0.02,
+      onChange: (v: number) => {
+        octopusParams.contourSpacing = v;
+      },
+    },
+    lineWidth: {
+      value: OCTO_DEFAULTS.lineWidth,
+      min: 0.5,
+      max: 3,
+      step: 0.1,
+      onChange: (v: number) => {
+        octopusParams.lineWidth = v;
+      },
+    },
+    fillAmount: {
+      value: OCTO_DEFAULTS.fillAmount,
+      min: 0,
+      max: 0.6,
+      step: 0.01,
+      onChange: (v: number) => {
+        octopusParams.fillAmount = v;
+      },
+    },
   });
 
   return null;

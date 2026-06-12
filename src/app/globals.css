@@ -294,6 +294,283 @@ body {
   animation: hero-ping 0.7s var(--ease-instrument) forwards;
 }
 
+/* ============================================================
+   INSTRUMENT GLYPH HOVER ANIMATIONS
+   Each node's bespoke icon comes alive true to what it reads.
+   Driven by .is-hot (React hover / focus / ?focus= deep-link), so
+   mouse, keyboard and deep-links all trigger it. The reduced-motion
+   rule (file end) collapses every one to its finished, legible state.
+   ============================================================ */
+
+/* Sub-parts that rotate/scale do so about their own centre. */
+.glyph .compass-needle,
+.glyph .ship,
+.glyph .reflex-flash {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* CORTEX — neuron: an impulse runs the axon; the terminals fire. */
+.glyph .neuron-spark {
+  opacity: 0;
+}
+.glyph.is-hot .neuron-spark {
+  /* offset-path MUST match NEURON_AXON in instrument-constellation.tsx */
+  offset-path: path("M -3 -2.6 C 2 0.5, 5.5 3.5, 10.6 9");
+  animation: neuron-travel 1.25s var(--ease-plot) infinite;
+}
+@keyframes neuron-travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+.glyph .neuron-soma {
+  transition: opacity var(--dur-base) var(--ease-instrument);
+}
+.glyph.is-hot .neuron-soma {
+  animation: neuron-pulse 1.25s var(--ease-instrument) infinite;
+}
+@keyframes neuron-pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  8% {
+    opacity: 1;
+  }
+}
+.glyph .neuron-terminal {
+  opacity: 0.45;
+}
+.glyph.is-hot .neuron-terminal {
+  animation: neuron-fire 1.25s var(--ease-instrument) infinite;
+}
+@keyframes neuron-fire {
+  0%,
+  78% {
+    opacity: 0.45;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
+
+/* REFLEX — the trace sweeps in like a scope; the peak flashes. */
+.glyph.is-hot .reflex-trace {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  animation: reflex-sweep 1.15s var(--ease-plot) infinite;
+}
+@keyframes reflex-sweep {
+  0% {
+    stroke-dashoffset: 1;
+  }
+  55%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+.glyph .reflex-flash {
+  opacity: 0;
+}
+.glyph.is-hot .reflex-flash {
+  animation: reflex-flash 1.15s var(--ease-instrument) infinite;
+}
+@keyframes reflex-flash {
+  0%,
+  48% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  58% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+/* IMAGINE — the bulb turns on: filament brightens, it glows, light rays out. */
+.glyph .bulb-glow {
+  opacity: 0;
+}
+.glyph .bulb-filament {
+  stroke-opacity: 0.32;
+  transition:
+    stroke-opacity var(--dur-base) var(--ease-instrument),
+    stroke var(--dur-base) var(--ease-instrument);
+}
+.glyph .bulb-rays {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.glyph.is-hot .bulb-glow-outer {
+  animation: bulb-on-outer 0.6s var(--ease-instrument) forwards;
+}
+.glyph.is-hot .bulb-glow-inner {
+  animation: bulb-on-inner 0.6s var(--ease-instrument) forwards;
+}
+.glyph.is-hot .bulb-filament {
+  stroke-opacity: 1;
+  stroke: var(--imagine-vivid);
+}
+.glyph.is-hot .bulb-rays {
+  animation: bulb-rays 0.6s var(--ease-instrument) forwards;
+}
+/* warm-up flicker, then steady */
+@keyframes bulb-on-outer {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.28;
+  }
+  26% {
+    opacity: 0.08;
+  }
+  40% {
+    opacity: 0.34;
+  }
+  100% {
+    opacity: 0.26;
+  }
+}
+@keyframes bulb-on-inner {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.5;
+  }
+  26% {
+    opacity: 0.15;
+  }
+  40% {
+    opacity: 0.62;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}
+@keyframes bulb-rays {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  55% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+/* ODYSSEY — the sea drifts, the ship bobs, the sail fills with wind. */
+.glyph.is-hot .sea-wave-1 {
+  animation: sea-drift-1 6s var(--ease-linear) infinite;
+}
+.glyph.is-hot .sea-wave-2 {
+  animation: sea-drift-2 8s var(--ease-linear) infinite;
+}
+@keyframes sea-drift-1 {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-12px);
+  }
+}
+@keyframes sea-drift-2 {
+  from {
+    transform: translateX(-12px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.glyph.is-hot .ship {
+  animation: ship-bob 4.2s var(--ease-instrument) infinite;
+}
+@keyframes ship-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.4deg);
+  }
+  50% {
+    transform: translateY(-1px) rotate(1.4deg);
+  }
+}
+.glyph .ship-sail {
+  transform-box: fill-box;
+  transform-origin: 12% 50%;
+  transform: scaleX(0.8);
+  transition: transform var(--dur-settle) var(--ease-instrument);
+}
+.glyph.is-hot .ship-sail {
+  transform: scaleX(1);
+}
+
+/* TRADEROUTE — the compass needle spins up and settles to north. */
+.glyph .compass-needle {
+  transition: transform var(--dur-settle) var(--ease-instrument);
+}
+.glyph.is-hot .compass-needle {
+  animation: compass-settle 1.2s var(--ease-instrument) forwards;
+}
+@keyframes compass-settle {
+  0% {
+    transform: rotate(-380deg);
+  }
+  62% {
+    transform: rotate(-7deg);
+  }
+  79% {
+    transform: rotate(4deg);
+  }
+  91% {
+    transform: rotate(-1.6deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+.glyph .compass-pivot {
+  transition: opacity var(--dur-base) var(--ease-instrument);
+}
+.glyph.is-hot .compass-pivot {
+  animation: compass-pivot 1.2s var(--ease-instrument);
+}
+@keyframes compass-pivot {
+  0%,
+  70% {
+    opacity: 0.7;
+  }
+  84% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
